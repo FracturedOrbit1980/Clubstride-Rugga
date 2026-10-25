@@ -1,0 +1,234 @@
+import { ensureYouthAges } from "@/lib/club/age";
+import type { ClubAgeGroup, DrillTemplate, SetupDiagram } from "@/lib/club/catalog";
+import { DEFAULT_PITCH_COLOR, type DrillBoard } from "@/lib/club/board";
+import { mergeLibraryBoards } from "@/lib/club/library-boards";
+import { clubLibrary } from "@/lib/club/library";
+import { formatRegNumber, splitName } from "@/lib/club/registration";
+import { placeOnU12Prem, playerId, SQUAD_TEAM_ID, U12_SQUAD } from "@/lib/club/roster";
+
+export interface PaymentRecord {
+  id: string;
+  date: string;
+  amount: number;
+}
+
+export interface PlanInstalment {
+  id: string;
+  dueDate: string;
+  amount: number;
+}
+
+export interface PaymentPlan {
+  id: string;
+  agreedOn: string;
+  instalments: PlanInstalment[];
+}
+
+export interface PromiseToPay {
+  date: string;
+  amount: number;
+  notedOn: string;
+}
+
+export const CORRESPONDENCE_CHANNELS = ["Call", "Email", "SMS", "Note"] as const;
+export type CorrespondenceChannel = "Registration" | "Print" | (typeof CORRESPONDENCE_CHANNELS)[number];
+
+export interface CorrespondenceEntry {
+  id: string;
+  date: string;
+  channel: CorrespondenceChannel;
+  summary: string;
+}
+
+export interface ClubPlayer {
+  id: string;
+  name: string;
+  firstName: string;
+  surname: string;
+  regNumber: string;
+  idNumber: string;
+  mobile: string;
+  correspondence: CorrespondenceEntry[];
+  squadNumber: number;
+  position: string;
+  positions?: string[];
+  teamId: string;
+  homework: string;
+  photo?: string;
+  seasonFee: number;
+  sponsoredAmount: number;
+  feeDueDate: string;
+  payments: PaymentRecord[];
+  paymentPlan: PaymentPlan | null;
+  promise: PromiseToPay | null;
+  guardianName: string;
+  guardianEmail: string;
+  accessPin: string;
+}
+
+export interface ClubCoach {
+  id: string;
+  name: string;
+  teamId: string;
+}
+
+export interface ClubDrill extends DrillTemplate {
+  durationSeconds: number;
+  diagram: SetupDiagram;
+}
+
+export interface EvaluationRecord {
+  id: string;
+  playerId: string;
+  date: string;
+  technical: number;
+  tactical: number;
+  physical: number;
+  mental: number;
+  notes: string;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  playerId: string;
+  when: string;
+  detail: string;
+  status: "Present" | "Absent";
+}
+
+export interface TrainingMark {
+  playerId: string;
+  date: string;
+  present: boolean;
+}
+
+export type TrainingStatus = "Present" | "Not present" | "Not marked";
+
+export interface WeeklyReport {
+  id: string;
+  playerId: string;
+  teamId: string;
+  weekStart: string;
+  gameDay: string;
+  attendance: { date: string; status: TrainingStatus }[];
+  gameFeedback: string;
+}
+
+export interface SessionPlan {
+  id: string;
+  teamId: string;
+  title: string;
+  drillIds: string[];
+  savedOn: string;
+}
+
+export interface SavedMatch {
+  id: string;
+  teamId: string;
+  opponent: string;
+  playedOn: string;
+  minutes: { playerId: string; minutesPlayed: number }[];
+}
+
+export interface CustomFormation {
+  id: string;
+  name: string;
+  slots: { x: number; y: number }[];
+}
+
+export interface ClubData {
+  clubKind: "rugga" | "custom";
+  customFormations: CustomFormation[];
+  ageGroups: ClubAgeGroup[];
+  coaches: ClubCoach[];
+  players: ClubPlayer[];
+  drills: ClubDrill[];
+  evaluations: EvaluationRecord[];
+  attendance: AttendanceRecord[];
+  trainingMarks: TrainingMark[];
+  weeklyReports: WeeklyReport[];
+  sessions: SessionPlan[];
+  matches: SavedMatch[];
+  coachTeamId: string | null;
+  boards: Record<string, DrillBoard>;
+  matchPitchColor: string;
+}
+
+export function createSeed(): ClubData {
+  const placed = placeOnU12Prem(
+    ensureYouthAges([]),
+    U12_SQUAD.map((player, index) => {
+      const { firstName, surname } = splitName(player.name);
+      return {
+        id: playerId(player.name),
+        name: player.name,
+        firstName,
+        surname,
+        regNumber: formatRegNumber(index + 1),
+        idNumber: "",
+        mobile: "",
+        correspondence: [],
+        squadNumber: player.squadNumber,
+        position: "Central midfielder",
+        positions: [] as string[],
+        teamId: SQUAD_TEAM_ID,
+        homework: "",
+        photo: "",
+        seasonFee: 0,
+        sponsoredAmount: 0,
+        feeDueDate: "",
+        payments: [],
+        paymentPlan: null,
+        promise: null,
+        guardianName: "",
+        guardianEmail: "",
+        accessPin: "",
+      };
+    }),
+  );
+  return {
+    clubKind: "rugga",
+    customFormations: [],
+    ageGroups: placed.ageGroups,
+    coaches: [],
+    players: placed.players,
+    drills: clubLibrary.map((drill) => ({
+      ...drill,
+      coachingPoints: [...drill.coachingPoints],
+      durationSeconds: drill.defaultDurationSeconds,
+    })),
+    evaluations: [],
+    attendance: [],
+    trainingMarks: [],
+    weeklyReports: [],
+    sessions: [],
+    matches: [],
+    coachTeamId: placed.teamId,
+    boards: mergeLibraryBoards({}),
+    matchPitchColor: DEFAULT_PITCH_COLOR,
+  };
+}
+
+export function createEmptyClub(): ClubData {
+  return {
+    clubKind: "custom",
+    customFormations: [],
+    ageGroups: ensureYouthAges([]),
+    coaches: [],
+    players: [],
+    drills: clubLibrary.map((drill) => ({
+      ...drill,
+      coachingPoints: [...drill.coachingPoints],
+      durationSeconds: drill.defaultDurationSeconds,
+    })),
+    evaluations: [],
+    attendance: [],
+    trainingMarks: [],
+    weeklyReports: [],
+    sessions: [],
+    matches: [],
+    coachTeamId: null,
+    boards: mergeLibraryBoards({}),
+    matchPitchColor: DEFAULT_PITCH_COLOR,
+  };
+}
