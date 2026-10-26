@@ -9,7 +9,7 @@ export default function DrillEditorPage() {
       <PageHeader
         className="editor-title"
         title="Drill editor and animator toolkit"
-        description="The tools sit to the left of the pitch. Undo and redo are there too. Player and opponent colours are at the bottom, and each player is a mannequin."
+        description="The tools sit to the left of the field. Undo and redo are there too. Player and opponent colours are at the bottom, and each player is a mannequin."
       />
       <DrillEditor />
     </div>

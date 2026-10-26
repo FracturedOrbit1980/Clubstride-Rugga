@@ -32,22 +32,22 @@ export function DrillSetupDiagram({ diagram, pitchSetup, size = "md" }: DiagramP
 
 function SetupShape({ diagram }: { diagram: SetupDiagram }) {
   switch (diagram) {
-    case "square":
-      return <SquarePassing />;
-    case "channel":
-      return <ChannelToGoal />;
-    case "rondo":
-      return <Rondo />;
-    case "overlap":
-      return <Overlap />;
-    case "press":
-      return <Press />;
+    case "ruck":
+      return <Ruck />;
+    case "maul":
+      return <Maul />;
+    case "scrum":
+      return <Scrum />;
+    case "lineout":
+      return <Lineout />;
+    case "backline":
+      return <Backline />;
+    case "kickoff":
+      return <Kickoff />;
     case "gates":
-      return <TwoGates />;
+      return <Gates />;
     case "lanes":
       return <Lanes />;
-    case "corner":
-      return <Corner />;
   }
 }
 
@@ -64,105 +64,123 @@ function Player({ x, y, dark = false }: { x: number; y: number; dark?: boolean }
 }
 
 function Ball({ x, y }: { x: number; y: number }) {
-  return <circle cx={x} cy={y} r="3.5" fill="#fff" stroke="#0f172a" strokeWidth="1" />;
+  return <ellipse cx={x} cy={y} rx="4.5" ry="2.8" fill="#fff" stroke="#0f172a" strokeWidth="1" transform={`rotate(-20 ${x} ${y})`} />;
 }
 
-function Goal({ x, y, vertical = false }: { x: number; y: number; vertical?: boolean }) {
-  if (vertical) {
-    return <path d={`M${x} ${y} h10 v22 h-10`} fill="none" stroke="#0f172a" strokeWidth="2" />;
-  }
-  return <path d={`M${x} ${y} v10 h22 v-10`} fill="none" stroke="#0f172a" strokeWidth="2" />;
-}
-
-function SquarePassing() {
+function Ruck() {
   return (
     <g>
-      <rect x="48" y="22" width="64" height="56" fill="none" stroke="#047857" strokeWidth="1.5" strokeDasharray="3 2" />
-      <Cone x={48} y={14} />
-      <Cone x={112} y={14} />
-      <Cone x={48} y={62} />
-      <Cone x={112} y={62} />
-      <Player x={48} y={30} />
-      <Player x={112} y={30} />
-      <Player x={112} y={78} />
-      <Player x={48} y={78} />
-      <Ball x={78} y={30} />
-      <path d="M58 28 H96" fill="none" stroke="#0f172a" strokeWidth="1.5" />
-      <polygon points="96,24 104,28 96,32" fill="#0f172a" />
+      <rect x="24" y="16" width="112" height="70" fill="none" stroke="#047857" strokeWidth="1.5" strokeDasharray="3 2" />
+      <Ball x={80} y={54} />
+      <Player x={68} y={46} />
+      <Player x={88} y={50} />
+      <Player x={76} y={72} dark />
+      <Cone x={54} y={24} />
+      <Cone x={100} y={24} />
+      <path d="M58 62 C64 58 68 56 72 54" fill="none" stroke="#0f172a" strokeWidth="1.5" />
+      <path d="M100 70 C94 66 90 60 88 56" fill="none" stroke="#0f172a" strokeWidth="1.5" />
     </g>
   );
 }
 
-function ChannelToGoal() {
+function Maul() {
   return (
     <g>
-      <rect x="28" y="18" width="78" height="64" fill="none" stroke="#047857" strokeWidth="1.5" />
-      <Goal x={106} y={39} vertical />
-      <Cone x={36} y={42} />
-      <Player x={48} y={50} />
-      <Player x={78} y={50} dark />
-      <Ball x={58} y={50} />
+      <rect x="26" y="14" width="108" height="72" fill="none" stroke="#047857" strokeWidth="1.5" />
+      <Player x={60} y={36} />
+      <Player x={60} y={54} />
+      <Player x={60} y={72} />
+      <Ball x={72} y={54} />
+      <Player x={92} y={36} dark />
+      <Player x={92} y={54} dark />
+      <Player x={92} y={72} dark />
+      <path d="M70 46 H88" stroke="#0f172a" strokeWidth="1.5" />
+      <path d="M70 62 H88" stroke="#0f172a" strokeWidth="1.5" />
     </g>
   );
 }
 
-function Rondo() {
+function Scrum() {
   return (
     <g>
-      <rect x="40" y="18" width="80" height="64" fill="none" stroke="#047857" strokeWidth="1.5" />
-      <Player x={40} y={18} />
-      <Player x={120} y={18} />
-      <Player x={120} y={82} />
-      <Player x={40} y={82} />
-      <Player x={70} y={50} dark />
-      <Player x={92} y={50} dark />
-      <Ball x={104} y={24} />
+      <rect x="18" y="18" width="124" height="64" fill="none" stroke="#047857" strokeWidth="1.5" />
+      <Player x={62} y={32} />
+      <Player x={62} y={50} />
+      <Player x={62} y={68} />
+      <Player x={82} y={32} dark />
+      <Player x={82} y={50} dark />
+      <Player x={82} y={68} dark />
+      <Ball x={92} y={74} />
+      <Player x={104} y={74} />
+      <path d="M68 50 H78" stroke="#0f172a" strokeWidth="1.5" />
+      <path d="M68 66 H78" stroke="#0f172a" strokeWidth="1.5" />
+      <path d="M88 72 C90 72 91 73 92 74" fill="none" stroke="#0f172a" strokeWidth="1.2" />
     </g>
   );
 }
 
-function Overlap() {
-  return (
-    <g>
-      <rect x="18" y="16" width="110" height="68" fill="none" stroke="#047857" strokeWidth="1.5" />
-      <Goal x={128} y={39} vertical />
-      <Cone x={36} y={22} />
-      <Cone x={36} y={58} />
-      <Player x={48} y={34} />
-      <Player x={70} y={58} />
-      <path d="M48 40 C70 40 78 62 100 50" fill="none" stroke="#0f172a" strokeWidth="1.5" />
-      <Ball x={108} y={48} />
-    </g>
-  );
-}
-
-function Press() {
+function Lineout() {
   return (
     <g>
       <rect x="16" y="14" width="128" height="72" fill="none" stroke="#047857" strokeWidth="1.5" />
-      <Goal x={16} y={39} vertical />
-      <Player x={36} y={50} />
-      <Player x={52} y={28} />
-      <Player x={52} y={42} />
-      <Player x={52} y={58} />
-      <Player x={52} y={72} />
-      <Player x={96} y={30} dark />
-      <Player x={110} y={44} dark />
-      <Player x={110} y={58} dark />
-      <Player x={96} y={72} dark />
-      <Ball x={84} y={50} />
+      <line x1="46" y1="20" x2="46" y2="82" stroke="#047857" strokeWidth="1.5" strokeDasharray="4 3" />
+      <Player x={46} y={26} />
+      <Player x={46} y={48} />
+      <Player x={46} y={70} />
+      <Player x={108} y={26} dark />
+      <Player x={108} y={48} dark />
+      <Player x={108} y={70} dark />
+      <Ball x={60} y={50} />
+      <path d="M60 50 C74 34 90 30 104 28" fill="none" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="2 2" />
+      <Cone x={22} y={76} />
     </g>
   );
 }
 
-function TwoGates() {
+function Backline() {
+  return (
+    <g>
+      <rect x="12" y="14" width="136" height="72" fill="none" stroke="#047857" strokeWidth="1.5" />
+      <Player x={30} y={50} />
+      <Player x={54} y={34} />
+      <Player x={78} y={50} />
+      <Player x={102} y={34} />
+      <Player x={126} y={50} />
+      <Ball x={40} y={48} />
+      <path d="M40 48 L50 36" stroke="#0f172a" strokeWidth="1.5" />
+      <path d="M60 34 C68 34 70 46 74 48" fill="none" stroke="#0f172a" strokeWidth="1.5" />
+      <path d="M84 50 C92 50 94 38 98 36" fill="none" stroke="#0f172a" strokeWidth="1.5" />
+      <Player x={50} y={74} dark />
+      <Player x={74} y={74} dark />
+    </g>
+  );
+}
+
+function Kickoff() {
+  return (
+    <g>
+      <rect x="14" y="14" width="132" height="72" fill="none" stroke="#047857" strokeWidth="1.5" />
+      <line x1="80" y1="14" x2="80" y2="86" stroke="#047857" strokeWidth="1.5" strokeDasharray="4 3" />
+      <Player x={54} y={50} />
+      <Ball x={64} y={46} />
+      <path d="M66 46 C82 22 98 22 112 32" fill="none" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="2 2" />
+      <Player x={112} y={34} dark />
+      <Player x={72} y={68} />
+      <Player x={92} y={72} />
+      <Cone x={118} y={74} />
+    </g>
+  );
+}
+
+function Gates() {
   return (
     <g>
       <path d="M36 28 v44 M52 28 v44" stroke="#d97706" strokeWidth="3" />
       <path d="M108 28 v44 M124 28 v44" stroke="#d97706" strokeWidth="3" />
       <path d="M52 50 H108" stroke="#0f172a" strokeWidth="1.5" strokeDasharray="4 3" />
       <Player x={64} y={50} />
-      <Ball x={74} y={50} />
+      <Ball x={76} y={50} />
+      <Player x={94} y={50} dark />
     </g>
   );
 }
@@ -172,26 +190,11 @@ function Lanes() {
     <g>
       {[28, 58, 88, 118].map((x) => (
         <g key={x}>
-          <rect x={x} y={18} width="16" height="64" fill="none" stroke="#047857" strokeWidth="1.5" />
+          <rect x={x} y="18" width="16" height="64" fill="none" stroke="#047857" strokeWidth="1.5" />
           <Player x={x + 8} y={70} />
         </g>
       ))}
-    </g>
-  );
-}
-
-function Corner() {
-  return (
-    <g>
-      <rect x="20" y="16" width="120" height="70" fill="none" stroke="#047857" strokeWidth="1.5" />
-      <Goal x={58} y={16} />
-      <path d="M20 86 a16 16 0 0 0 16-16" fill="none" stroke="#0f172a" strokeWidth="1.5" />
-      <Player x={32} y={74} />
-      <Player x={62} y={36} />
-      <Player x={80} y={48} />
-      <Player x={98} y={36} />
-      <Player x={70} y={48} dark />
-      <Ball x={36} y={70} />
+      <Ball x={156} y={70} />
     </g>
   );
 }

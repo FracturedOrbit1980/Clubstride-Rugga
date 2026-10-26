@@ -14,10 +14,10 @@ export type DrillRecordDraft = {
   dimensions: string;
   workRest: string;
   repetitions: number;
-  attackers: number;
+  forwards: number;
+  backs: number;
   defenders: number;
   neutrals: number;
-  goalkeepers: number;
   equipment: string;
   progressions: string;
 };
@@ -132,7 +132,7 @@ export function DrillRecordFields({
           </select>
         </label>
         <label className="text-sm font-semibold text-slate-800">
-          Pitch size
+          Field size
           <input
             value={draft.dimensions}
             data-field="dimensions"
@@ -150,10 +150,10 @@ export function DrillRecordFields({
           />
         </label>
         <Count label="Repetitions" field="repetitions" value={draft.repetitions} min={1} onChange={(repetitions) => patch({ repetitions })} />
-        <Count label="Attackers" field="attackers" value={draft.attackers} onChange={(attackers) => patch({ attackers })} />
+        <Count label="Forwards" field="forwards" value={draft.forwards} onChange={(forwards) => patch({ forwards })} />
+        <Count label="Backs" field="backs" value={draft.backs} onChange={(backs) => patch({ backs })} />
         <Count label="Defenders" field="defenders" value={draft.defenders} onChange={(defenders) => patch({ defenders })} />
         <Count label="Neutrals" field="neutrals" value={draft.neutrals} onChange={(neutrals) => patch({ neutrals })} />
-        <Count label="Goalkeepers" field="goalkeepers" value={draft.goalkeepers} onChange={(goalkeepers) => patch({ goalkeepers })} />
       </div>
       <label className="block text-sm font-semibold text-slate-800">
         Equipment, separated by commas
@@ -218,7 +218,7 @@ export function draftFromDrill(drill: {
   dimensions: string;
   workRest: string;
   repetitions: number;
-  players: { attackers: number; defenders: number; neutrals: number; goalkeepers: number };
+  players: { forwards: number; backs: number; defenders: number; neutrals: number };
   equipment: string[];
   progressions: string[];
 }): DrillRecordDraft {
@@ -233,10 +233,10 @@ export function draftFromDrill(drill: {
     dimensions: drill.dimensions,
     workRest: drill.workRest,
     repetitions: drill.repetitions,
-    attackers: drill.players.attackers,
+    forwards: drill.players.forwards,
+    backs: drill.players.backs,
     defenders: drill.players.defenders,
     neutrals: drill.players.neutrals,
-    goalkeepers: drill.players.goalkeepers,
     equipment: drill.equipment.join(", "),
     progressions: drill.progressions.join("\n"),
   };
@@ -254,10 +254,10 @@ export function emptyDraft(): DrillRecordDraft {
     dimensions: "",
     workRest: "",
     repetitions: 1,
-    attackers: 0,
+    forwards: 0,
+    backs: 0,
     defenders: 0,
     neutrals: 0,
-    goalkeepers: 0,
     equipment: "",
     progressions: "",
   };

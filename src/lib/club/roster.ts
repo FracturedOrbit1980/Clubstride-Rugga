@@ -1,25 +1,27 @@
 import { ageNumber } from "@/lib/club/age";
+import { DEFAULT_POSITION, positionForNumber, type StandardPosition } from "@/lib/club/positions";
 
 export const SQUAD_TEAM_ID = "tm-u12-2015";
 
 export interface RosterRow {
   name: string;
   squadNumber: number;
+  position: StandardPosition;
 }
 
 export const U12_SQUAD: RosterRow[] = [
-  { name: "HUDSON ANTHONY MINNIE", squadNumber: 4 },
-  { name: "LUNGELO MNQOBI MLUNGWANE", squadNumber: 12 },
-  { name: "KAYDEN METZER", squadNumber: 41 },
-  { name: "FABIO DE ABREU", squadNumber: 17 },
-  { name: "JOSHUA JORDAN HELENA", squadNumber: 8 },
-  { name: "DIEGO FERDINAND MASSYN", squadNumber: 9 },
-  { name: "MPHO QUINTON MALATJI", squadNumber: 11 },
-  { name: "RILEY MACKINLAY", squadNumber: 33 },
-  { name: "CARTER SEVIRON DORMEHL", squadNumber: 1 },
-  { name: "NOAH LEE EL SAMRANI", squadNumber: 7 },
-  { name: "ETHAN DELPORT", squadNumber: 10 },
-  { name: "MASUNGULO TLAKA", squadNumber: 5 },
+  { name: "HUDSON ANTHONY MINNIE", squadNumber: 1, position: "Loosehead prop" },
+  { name: "LUNGELO MNQOBI MLUNGWANE", squadNumber: 2, position: "Hooker" },
+  { name: "KAYDEN METZER", squadNumber: 3, position: "Tighthead prop" },
+  { name: "FABIO DE ABREU", squadNumber: 4, position: "Lock" },
+  { name: "JOSHUA JORDAN HELENA", squadNumber: 5, position: "Lock" },
+  { name: "DIEGO FERDINAND MASSYN", squadNumber: 6, position: "Blindside flanker" },
+  { name: "MPHO QUINTON MALATJI", squadNumber: 7, position: "Openside flanker" },
+  { name: "RILEY MACKINLAY", squadNumber: 8, position: "No. 8" },
+  { name: "CARTER SEVIRON DORMEHL", squadNumber: 9, position: "Scrum-half" },
+  { name: "NOAH LEE EL SAMRANI", squadNumber: 10, position: "Fly-half" },
+  { name: "ETHAN DELPORT", squadNumber: 11, position: "Left wing" },
+  { name: "MASUNGULO TLAKA", squadNumber: 12, position: "Inside centre" },
 ];
 
 export function playerId(name: string) {
@@ -135,7 +137,7 @@ function rowFrom(name: string, shirt: string): RosterRow | { error: string } {
   if (!isShirt(shirt)) return { error: "Shirt number must be from 1 to 99." };
   const trimmed = name.trim().replace(/\s+/g, " ");
   if (!trimmed) return { error: "Add the player name." };
-  return { name: trimmed, squadNumber };
+  return { name: trimmed, squadNumber, position: positionForNumber(squadNumber) ?? DEFAULT_POSITION };
 }
 
 function isShirt(value: string) {

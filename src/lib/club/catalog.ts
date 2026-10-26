@@ -13,11 +13,11 @@ export const DRILL_TYPES = [
   { id: "WU", label: "Warm-up" },
   { id: "TP", label: "Technical" },
   { id: "SP", label: "Skill" },
-  { id: "Rondo", label: "Rondo" },
-  { id: "PoP", label: "Phase of play" },
+  { id: "Contact", label: "Contact" },
+  { id: "Set piece", label: "Set piece" },
+  { id: "Unit", label: "Unit" },
   { id: "SSG", label: "Small-sided game" },
-  { id: "11v11", label: "11v11" },
-  { id: "Physical", label: "Physical" },
+  { id: "15v15", label: "15v15" },
 ] as const;
 
 export type DrillType = (typeof DRILL_TYPES)[number]["id"];
@@ -30,20 +30,31 @@ export const SKILL_LEVELS = ["Beginner", "Intermediate", "Professional"] as cons
 
 export type SkillLevel = (typeof SKILL_LEVELS)[number];
 
-export const LICENSE_LEVELS = ["Grassroots", "UEFA C", "UEFA B", "UEFA A", "UEFA Pro"] as const;
+export const LICENSE_LEVELS = ["Grassroots", "SA Rugby Level 1", "SA Rugby Level 2", "SA Rugby Level 3", "SA Rugby Elite"] as const;
 
 export type LicenseLevel = (typeof LICENSE_LEVELS)[number];
 
 export interface PlayerCount {
-  attackers: number;
+  forwards: number;
+  backs: number;
   defenders: number;
   neutrals: number;
-  goalkeepers: number;
 }
 
-export const SETUP_DIAGRAMS = ["square", "channel", "rondo", "overlap", "press", "gates", "lanes", "corner"] as const;
+export const SETUP_DIAGRAMS = ["ruck", "maul", "scrum", "lineout", "backline", "kickoff", "gates", "lanes"] as const;
 
 export type SetupDiagram = (typeof SETUP_DIAGRAMS)[number];
+
+export const SETUP_DIAGRAM_LABEL: Record<SetupDiagram, string> = {
+  ruck: "Ruck",
+  maul: "Maul",
+  scrum: "Scrum",
+  lineout: "Lineout",
+  backline: "Backline",
+  kickoff: "Kick-off",
+  gates: "Gates",
+  lanes: "Lanes",
+};
 
 export const DIVISIONS = ["Prem", "Div 1", "Div 2", "Div 3", "Div 4"] as const;
 

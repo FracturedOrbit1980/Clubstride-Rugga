@@ -17,8 +17,8 @@ function player(id: string, x: number, y: number, label: string, team: "player" 
   return { id, kind: "player", x, y, label, team };
 }
 
-function keeper(id: string, x: number, y: number): BoardPiece {
-  return { id, kind: "keeper", x, y, label: "GK", team: "player" };
+function ball(id: string, x: number, y: number): BoardPiece {
+  return { id, kind: "ball", x, y, label: "" };
 }
 
 function cone(id: string, x: number, y: number): BoardPiece {
@@ -36,7 +36,7 @@ function slide(id: string, pieces: BoardPiece[], marks: BoardMark[]): BoardFrame
 function phaseFor(id: string): SessionPhase {
   if (id.endsWith("_wu")) return "Warm-up";
   if (id.endsWith("_tp")) return "Technical";
-  if (id.endsWith("_sp") || id.endsWith("094")) return "Skill";
+  if (id.endsWith("_sp") || id.endsWith("_break")) return "Skill";
   if (id.endsWith("_ssg")) return "Small-sided game";
   return "Game";
 }
@@ -67,140 +67,150 @@ function lineShape(nudge: number): BoardFrame[] {
   return [
     slide(
       "slide-1",
-      [player("a", x, 16, "1"), player("b", x, 32, "2"), player("c", x, 48, "3"), cone("c1", x + 16, 16), cone("c2", x + 16, 48)],
+      [player("a", x, 16, "6"), player("b", x, 32, "7"), player("c", x, 48, "8"), cone("c1", x + 16, 16), cone("c2", x + 16, 48)],
       [line("press", x + 6, 14, x + 6, 50, "press"), line("run", x + 4, 32, x + 14, 32, "run")],
     ),
     slide(
       "slide-2",
-      [player("a", x + 22, 14, "1"), player("b", x + 22, 32, "2"), player("c", x + 22, 50, "3"), cone("c1", x + 16, 16), cone("c2", x + 16, 48)],
+      [player("a", x + 22, 14, "6"), player("b", x + 22, 32, "7"), player("c", x + 22, 50, "8"), cone("c1", x + 16, 16), cone("c2", x + 16, 48)],
       [line("press", x + 28, 12, x + 28, 52, "press"), line("run", x + 22, 32, x + 36, 24, "run")],
     ),
     slide(
       "slide-3",
-      [player("a", x + 40, 16, "1"), player("b", x + 40, 32, "2"), player("c", x + 40, 48, "3"), cone("c1", x + 16, 16), cone("c2", x + 16, 48)],
+      [player("a", x + 40, 16, "6"), player("b", x + 40, 32, "7"), player("c", x + 40, 48, "8"), cone("c1", x + 16, 16), cone("c2", x + 16, 48)],
       [line("press", x + 46, 14, x + 46, 50, "press"), line("run", x + 40, 32, x + 54, 20, "run")],
     ),
   ];
 }
 
-function boxPass(): BoardFrame[] {
+function ruckShape(): BoardFrame[] {
   return [
     slide(
       "slide-1",
-      [player("a", 28, 18, "1"), player("b", 72, 18, "2"), player("c", 72, 46, "3"), player("d", 28, 46, "4"), cone("c1", 36, 32)],
-      [line("pass", 32, 20, 66, 20, "pass"), line("run", 72, 22, 72, 40, "run")],
+      [
+        player("a", 28, 32, "9"),
+        player("b", 32, 40, "4"),
+        player("c", 24, 40, "7"),
+        ball("ball", 31, 34),
+        player("d", 46, 30, "6", "opponent"),
+        player("e", 44, 40, "8", "opponent"),
+      ],
+      [line("pass", 33, 38, 46, 34, "pass"), line("run", 34, 44, 50, 50, "run"), line("press", 44, 32, 40, 36, "press")],
     ),
     slide(
       "slide-2",
-      [player("a", 36, 24, "1"), player("b", 64, 24, "2"), player("c", 64, 42, "3"), player("d", 36, 42, "4"), cone("c1", 36, 32)],
-      [line("pass", 64, 28, 64, 38, "pass"), line("run", 60, 42, 40, 42, "run")],
+      [
+        player("a", 42, 30, "9"),
+        player("b", 46, 38, "4"),
+        player("c", 38, 42, "7"),
+        ball("ball", 44, 32),
+        player("d", 58, 28, "6", "opponent"),
+        player("e", 56, 40, "8", "opponent"),
+      ],
+      [line("pass", 46, 32, 58, 38, "pass"), line("run", 46, 42, 60, 50, "run"), line("press", 56, 30, 50, 34, "press")],
     ),
     slide(
       "slide-3",
-      [player("a", 30, 46, "1"), player("b", 48, 18, "2"), player("c", 74, 28, "3"), player("d", 52, 46, "4"), cone("c1", 36, 32)],
-      [line("pass", 70, 32, 54, 44, "pass"), line("run", 48, 46, 32, 46, "run")],
+      [
+        player("a", 58, 26, "9"),
+        player("b", 62, 34, "4"),
+        player("c", 54, 38, "7"),
+        ball("ball", 60, 28),
+        player("d", 74, 24, "6", "opponent"),
+        player("e", 72, 36, "8", "opponent"),
+      ],
+      [line("pass", 62, 28, 74, 22, "pass"), line("run", 62, 38, 78, 44, "run"), line("press", 72, 26, 66, 30, "press")],
     ),
   ];
 }
 
-function pressAngle(): BoardFrame[] {
+function backlineAttack(): BoardFrame[] {
   return [
     slide(
       "slide-1",
-      [player("a", 30, 32, "1"), player("b", 68, 20, "2", "opponent"), cone("c1", 22, 20), cone("c2", 22, 44)],
-      [line("pass", 34, 30, 52, 28, "dribble"), line("press", 64, 22, 48, 30, "press")],
+      [
+        player("a", 18, 34, "9"),
+        player("b", 30, 26, "10"),
+        player("c", 42, 20, "12"),
+        player("d", 54, 16, "13"),
+        player("e", 66, 14, "11"),
+        player("f", 46, 34, "6", "opponent"),
+        player("g", 58, 30, "7", "opponent"),
+        player("h", 68, 40, "8", "opponent"),
+      ],
+      [line("pass", 23, 31, 38, 22, "pass"), line("run", 42, 22, 64, 16, "run")],
     ),
     slide(
       "slide-2",
-      [player("a", 42, 34, "1"), player("b", 52, 28, "2", "opponent"), cone("c1", 22, 20), cone("c2", 22, 44)],
-      [line("pass", 40, 36, 28, 40, "dribble"), line("press", 50, 26, 40, 34, "press")],
+      [
+        player("a", 32, 30, "9"),
+        player("b", 44, 22, "10"),
+        player("c", 56, 16, "12"),
+        player("d", 68, 14, "13"),
+        player("e", 80, 18, "11"),
+        player("f", 60, 32, "6", "opponent"),
+        player("g", 70, 28, "7", "opponent"),
+        player("h", 78, 40, "8", "opponent"),
+      ],
+      [line("pass", 37, 27, 52, 18, "pass"), line("run", 56, 18, 76, 20, "run")],
     ),
     slide(
       "slide-3",
-      [player("a", 22, 44, "1"), player("b", 34, 38, "2", "opponent"), cone("c1", 22, 20), cone("c2", 22, 44)],
-      [line("pass", 24, 42, 16, 48, "dribble"), line("press", 32, 36, 22, 42, "press")],
+      [
+        player("a", 46, 26, "9"),
+        player("b", 58, 18, "10"),
+        player("c", 68, 12, "12"),
+        player("d", 78, 16, "13"),
+        player("e", 90, 24, "11"),
+        player("f", 72, 30, "6", "opponent"),
+        player("g", 80, 26, "7", "opponent"),
+        player("h", 88, 38, "8", "opponent"),
+      ],
+      [line("pass", 51, 23, 64, 15, "pass"), line("run", 68, 14, 86, 24, "run")],
     ),
   ];
 }
 
-function attack(): BoardFrame[] {
+function kickChase(): BoardFrame[] {
   return [
     slide(
       "slide-1",
       [
-        player("a", 22, 20, "1"),
-        player("b", 22, 44, "2"),
-        player("c", 38, 32, "3"),
-        player("d", 62, 22, "4", "opponent"),
-        player("e", 62, 44, "5", "opponent"),
-        keeper("gk", 88, 32),
+        player("a", 22, 32, "10"),
+        player("b", 34, 20, "11"),
+        player("c", 34, 44, "14"),
+        ball("ball", 28, 34),
+        player("d", 58, 20, "6", "opponent"),
+        player("e", 58, 34, "7", "opponent"),
+        player("f", 58, 48, "8", "opponent"),
       ],
-      [line("pass", 26, 22, 36, 30, "pass"), line("run", 38, 28, 54, 18, "run")],
+      [line("kick", 28, 30, 60, 16, "kick"), line("run", 36, 22, 58, 20, "run")],
     ),
     slide(
       "slide-2",
       [
-        player("a", 48, 16, "1"),
-        player("b", 40, 46, "2"),
-        player("c", 58, 32, "3"),
-        player("d", 72, 24, "4", "opponent"),
-        player("e", 74, 42, "5", "opponent"),
-        keeper("gk", 90, 32),
+        player("a", 36, 30, "10"),
+        player("b", 46, 18, "11"),
+        player("c", 46, 42, "14"),
+        ball("ball", 44, 28),
+        player("d", 68, 18, "6", "opponent"),
+        player("e", 68, 32, "7", "opponent"),
+        player("f", 68, 46, "8", "opponent"),
       ],
-      [line("pass", 50, 18, 58, 30, "pass"), line("run", 58, 28, 78, 28, "run")],
+      [line("kick", 42, 26, 72, 14, "kick"), line("run", 48, 20, 66, 18, "run")],
     ),
     slide(
       "slide-3",
       [
-        player("a", 72, 14, "1"),
-        player("b", 56, 48, "2"),
-        player("c", 76, 30, "3"),
-        player("d", 82, 20, "4", "opponent"),
-        player("e", 84, 42, "5", "opponent"),
-        keeper("gk", 92, 32),
+        player("a", 52, 28, "10"),
+        player("b", 60, 16, "11"),
+        player("c", 60, 40, "14"),
+        ball("ball", 60, 24),
+        player("d", 78, 16, "6", "opponent"),
+        player("e", 78, 30, "7", "opponent"),
+        player("f", 78, 44, "8", "opponent"),
       ],
-      [line("pass", 74, 28, 88, 30, "pass"), line("run", 72, 16, 86, 22, "run")],
-    ),
-  ];
-}
-
-function rondo(): BoardFrame[] {
-  return [
-    slide(
-      "slide-1",
-      [
-        player("a", 28, 16, "1"),
-        player("b", 72, 16, "2"),
-        player("c", 72, 48, "3"),
-        player("d", 28, 48, "4"),
-        player("e", 44, 28, "5", "opponent"),
-        player("f", 56, 36, "6", "opponent"),
-      ],
-      [line("pass", 32, 18, 66, 18, "pass"), line("press", 46, 30, 58, 22, "press")],
-    ),
-    slide(
-      "slide-2",
-      [
-        player("a", 30, 18, "1"),
-        player("b", 70, 22, "2"),
-        player("c", 68, 46, "3"),
-        player("d", 32, 46, "4"),
-        player("e", 52, 20, "5", "opponent"),
-        player("f", 58, 30, "6", "opponent"),
-      ],
-      [line("pass", 68, 24, 66, 42, "pass"), line("press", 54, 22, 66, 28, "press")],
-    ),
-    slide(
-      "slide-3",
-      [
-        player("a", 34, 22, "1"),
-        player("b", 66, 16, "2"),
-        player("c", 64, 46, "3"),
-        player("d", 30, 46, "4"),
-        player("e", 48, 32, "5", "opponent"),
-        player("f", 56, 34, "6", "opponent"),
-      ],
-      [line("pass", 60, 44, 36, 44, "pass"), line("press", 50, 30, 40, 40, "press")],
+      [line("kick", 58, 24, 84, 12, "kick"), line("run", 62, 18, 78, 18, "run")],
     ),
   ];
 }
@@ -257,39 +267,39 @@ function block(): BoardFrame[] {
     slide(
       "slide-1",
       [
-        player("a", 30, 16, "1"),
-        player("b", 30, 32, "2"),
-        player("c", 30, 48, "3"),
-        player("d", 48, 24, "4"),
-        player("e", 62, 18, "5", "opponent"),
-        player("f", 66, 34, "6", "opponent"),
-        player("g", 62, 50, "7", "opponent"),
+        player("a", 30, 16, "6"),
+        player("b", 30, 32, "7"),
+        player("c", 30, 48, "8"),
+        player("d", 48, 24, "9"),
+        player("e", 62, 18, "10", "opponent"),
+        player("f", 66, 34, "12", "opponent"),
+        player("g", 62, 50, "13", "opponent"),
       ],
       [line("pass", 34, 32, 46, 26, "pass"), line("run", 48, 20, 58, 16, "run")],
     ),
     slide(
       "slide-2",
       [
-        player("a", 46, 14, "1"),
-        player("b", 44, 32, "2"),
-        player("c", 46, 50, "3"),
-        player("d", 60, 28, "4"),
-        player("e", 74, 20, "5", "opponent"),
-        player("f", 78, 36, "6", "opponent"),
-        player("g", 74, 50, "7", "opponent"),
+        player("a", 46, 14, "6"),
+        player("b", 44, 32, "7"),
+        player("c", 46, 50, "8"),
+        player("d", 60, 28, "9"),
+        player("e", 74, 20, "10", "opponent"),
+        player("f", 78, 36, "12", "opponent"),
+        player("g", 74, 50, "13", "opponent"),
       ],
       [line("pass", 48, 30, 62, 22, "pass"), line("run", 60, 24, 74, 18, "run")],
     ),
     slide(
       "slide-3",
       [
-        player("a", 60, 12, "1"),
-        player("b", 58, 30, "2"),
-        player("c", 60, 48, "3"),
-        player("d", 74, 22, "4"),
-        player("e", 86, 16, "5", "opponent"),
-        player("f", 90, 34, "6", "opponent"),
-        player("g", 86, 50, "7", "opponent"),
+        player("a", 60, 12, "6"),
+        player("b", 58, 30, "7"),
+        player("c", 60, 48, "8"),
+        player("d", 74, 22, "9"),
+        player("e", 86, 16, "10", "opponent"),
+        player("f", 90, 34, "12", "opponent"),
+        player("g", 86, 50, "13", "opponent"),
       ],
       [line("pass", 62, 28, 78, 18, "pass"), line("run", 74, 20, 88, 14, "run")],
     ),
@@ -313,7 +323,7 @@ function place(id: string, x: number, y: number, label: string, team: "player" |
 /** Three slides for a catalogue drill that is not one of the hand-built previews. */
 function storyFrames(id: string, moment: MomentOfGame): BoardFrame[] {
   const hash = hashId(id);
-  const attackers = 3 + (hash % 2);
+  const carriers = 3 + (hash % 2);
   const defenders = moment === "IP" ? hash % 5 : 1 + ((hash >> 4) % 2);
   const baseX = 18 + (hash % 10);
   const baseY = 14 + ((hash >> 6) % 8);
@@ -323,11 +333,11 @@ function storyFrames(id: string, moment: MomentOfGame): BoardFrame[] {
 
   for (let step = 0; step < 3; step += 1) {
     const pieces: BoardPiece[] = [];
-    for (let index = 0; index < attackers; index += 1) {
+    for (let index = 0; index < carriers; index += 1) {
       let x = baseX + index * 12;
       let y = baseY + (index % 2) * 14;
       if (moment === "IP") {
-        x = baseX + ((index + step) % attackers) * 16;
+        x = baseX + ((index + step) % carriers) * 16;
         y = baseY + ((index + step * 2) % 3) * 12;
       } else if (moment === "T2A") {
         x = baseX + step * 16 + index * 7;
@@ -354,7 +364,7 @@ function storyFrames(id: string, moment: MomentOfGame): BoardFrame[] {
         x = 46 + step * 10 + index * 6;
         y = 16 + index * 16;
       }
-      pieces.push(place(`o${index}`, x, y, String(attackers + index + 1), "opponent"));
+      pieces.push(place(`o${index}`, x, y, String(carriers + index + 1), "opponent"));
     }
     pieces.push(coneA, coneB);
 
@@ -375,51 +385,23 @@ function storyFrames(id: string, moment: MomentOfGame): BoardFrame[] {
 
 function phaseFromType(type: DrillType): SessionPhase {
   if (type === "WU") return "Warm-up";
-  if (type === "TP") return "Technical";
-  if (type === "SP" || type === "Rondo") return "Skill";
+  if (type === "TP" || type === "Set piece") return "Technical";
+  if (type === "SP" || type === "Contact") return "Skill";
   if (type === "SSG") return "Small-sided game";
   return "Game";
 }
 
 function framesFor(id: string, index: number): BoardFrame[] {
-  if (id === "drill_uefa_oop_wu") return lineShape(index);
-  if (id === "drill_uefa_oop_tp") return pressAngle();
-  if (id === "drill_uefa_att_094") return rondo();
+  if (id.endsWith("_sp") || id.endsWith("_break")) return ruckShape();
   if (id.endsWith("_wu")) return pairs(index);
-  if (id.endsWith("_tp")) return boxPass();
-  if (id.endsWith("_sp")) return attack();
+  if (id.endsWith("_tp")) return backlineAttack();
   if (id.endsWith("_ssg")) return smallSided();
+  if (id.endsWith("_unit")) return index % 2 === 0 ? lineShape(index) : backlineAttack();
+  if (id.endsWith("_15")) return kickChase();
   return block();
 }
 
-const LIBRARY_IDS = [
-  "drill_uefa_ip_wu",
-  "drill_uefa_ip_tp",
-  "drill_uefa_ip_sp",
-  "drill_uefa_ip_pop",
-  "drill_uefa_ip_ssg",
-  "drill_uefa_ip_11",
-  "drill_uefa_oop_wu",
-  "drill_uefa_oop_tp",
-  "drill_uefa_oop_sp",
-  "drill_uefa_oop_pop",
-  "drill_uefa_oop_ssg",
-  "drill_uefa_oop_11",
-  "drill_uefa_t2a_wu",
-  "drill_uefa_t2a_tp",
-  "drill_uefa_t2a_sp",
-  "drill_uefa_t2a_pop",
-  "drill_uefa_t2a_ssg",
-  "drill_uefa_t2a_11",
-  "drill_uefa_t2d_wu",
-  "drill_uefa_t2d_tp",
-  "drill_uefa_att_094",
-  "drill_uefa_t2d_pop",
-  "drill_uefa_t2d_ssg",
-  "drill_uefa_t2d_11",
-] as const;
-
-const HAND_BUILT = new Set<string>(LIBRARY_IDS);
+const HAND_BUILT = new Set(clubLibrary.filter((item) => item.id.startsWith("drill_rugga_")).map((item) => item.id));
 
 export const libraryBoards: Record<string, DrillBoard> = Object.fromEntries(
   clubLibrary.map((item, index) => {

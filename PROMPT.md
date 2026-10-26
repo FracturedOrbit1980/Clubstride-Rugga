@@ -1,13 +1,13 @@
 # SYSTEM SPECIFICATION: CLUBSTRIDE APPLICATION PLATFORM
 
 ## 1. PROJECT OVERVIEW & GOALS
-Build a multi-tenant, role-based Progressive Web App (PWA) named Football, for the Clubstride club. 
+Build a multi-tenant, role-based Progressive Web App (PWA) named Clubstride Rugga, for the Clubstride rugby club. 
 The application manages a hierarchical club pipeline from grassroots to competitive youth squads.
 
 ### Primary Objectives:
-- **Responsive Architecture:** Seamless desktop experience for admin/planning; fast, pitch-side UI for mobile devices.
+- **Responsive Architecture:** Seamless desktop experience for admin/planning; fast, field-side UI for mobile devices.
 - **Hierarchical Access Control (RBAC):** Strict permissions separating Club Admins, Team Coaches, and Individual Players.
-- **Pitch-Side Utilities:** Live match substitution tracker with real-time minutes played counters, and an interactive drill stopwatch.
+- **Field-Side Utilities:** Live match substitution tracker with real-time minutes played counters, and an interactive drill stopwatch.
 - **Framework Agnostic Content:** Drill and evaluation metrics must remain flexible and modular, allowing standard custom inputs without hardcoded governing-body titles.
 
 ## 2. RECOMMENDED TECH STACK
@@ -22,7 +22,7 @@ The application manages a hierarchical club pipeline from grassroots to competit
 | Role Identifier | Scope & Boundary | Capabilities & Views |
 | :--- | :--- | :--- |
 | `SUPER_ADMIN` | Global (Entire Club) | Full view of all age groups, teams, coaches, player profiles, global analytics, and official club drill library management. |
-| `HEAD_COACH` | Assigned `team_id`(s) | View team roster, plan session drills, run pitch-side drill stopwatch, manage live match substitutions/minutes, rate player metrics. |
+| `HEAD_COACH` | Assigned `team_id`(s) | View team roster, plan session drills, run field-side drill stopwatch, manage live match substitutions/minutes, rate player metrics. |
 | `PLAYER` | Assigned `player_id` | Read-only view of personal profile, developmental radar graphs, match attendance, and assigned homework/notes. |
 
 ## 4. DATABASE SCHEMA (POSTGRESQL / SUPABASE DDL)
@@ -222,7 +222,7 @@ export function DrillStopwatch({ drillTitle, targetSeconds = 300 }: { drillTitle
 2. Database and auth layer stubs: Supabase browser/server clients from env vars, TypeScript types matching the schema, SQL migration file, middleware skeleton that will protect /admin, /coach, and /player by role. Do not require live Supabase credentials for the app to build. Use NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
 3. Dynamic component shells:
    - components/dashboard/: player radar chart using Recharts (can use sample scores).
-   - components/match/: live match tracker shell using the Zustand store (pitch vs bench, click-to-substitute, clock). Include a small demo roster so the UI is usable without a backend.
+   - components/match/: live match tracker shell using the Zustand store (field vs bench, click-to-substitute, clock) with 15, 12, 10, and 7-a-side shapes. Include a small demo roster so the UI is usable without a backend.
    - components/drills/: drill library grid shell (filter by objective category) plus the DrillStopwatch.
 4. Route groups:
    - / admin area for SUPER_ADMIN
@@ -230,9 +230,9 @@ export function DrillStopwatch({ drillTitle, targetSeconds = 300 }: { drillTitle
    - /player for PLAYER (profile, radar, attendance placeholder)
    A simple home/login placeholder is fine. Role switching for the demo can be a local dev control if auth is not wired to a real project yet — label it clearly as demo-only.
 
-PWA: add a minimal web app manifest and metadata so it is installable later. Product name: Football. Club name: Clubstride.
+PWA: add a minimal web app manifest and metadata so it is installable later. Product name: Clubstride Rugga. Club name: Clubstride.
 
-Club visual tone: football club, clean, high contrast, readable in sunlight on a phone. Emerald/slate is fine as a starting palette.
+Club visual tone: rugby club, clean, high contrast, readable in sunlight on a phone. Emerald/slate is fine as a starting palette.
 
 ## Out of scope for this slice
 - Real Supabase project provisioning

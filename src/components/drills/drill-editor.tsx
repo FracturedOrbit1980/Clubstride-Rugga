@@ -2,7 +2,9 @@
 
 import {
   ArrowRight,
+  ArrowUpRight,
   Circle,
+  CircleDot,
   Columns3,
   Cone,
   Flag,
@@ -14,12 +16,10 @@ import {
   Move,
   PanelTop,
   Pause,
-  PersonStanding,
   Play,
+  RectangleHorizontal,
   RectangleVertical,
-  Route,
   Save,
-  Shield,
   Square,
   SquareDashed,
   Redo2,
@@ -61,9 +61,9 @@ import { useClubStore } from "@/stores/club-store";
 const SPEEDS = [0.5, 1, 2];
 
 const VIEW_LABEL: Record<PitchView, string> = {
-  full: "Full pitch",
-  half: "Half pitch",
-  box: "Penalty box",
+  full: "Full field",
+  half: "Half field",
+  redzone: "22m zone",
   thirds: "Thirds",
   channel: "Channel",
 };
@@ -71,50 +71,50 @@ const VIEW_LABEL: Record<PitchView, string> = {
 const VIEW_ICON: Record<PitchView, LucideIcon> = {
   full: LandPlot,
   half: PanelTop,
-  box: Square,
+  redzone: Square,
   thirds: Columns3,
   channel: RectangleVertical,
 };
 
 const VIEW_HINT: Record<PitchView, string> = {
-  full: "Shows the whole pitch.",
-  half: "Shows one half of the pitch.",
-  box: "Zooms to the penalty box.",
-  thirds: "Splits the pitch into thirds.",
+  full: "Shows the whole field.",
+  half: "Shows one half of the field.",
+  redzone: "Zooms to the 22m area.",
+  thirds: "Splits the field into thirds.",
   channel: "Shows a wide channel.",
 };
 
 const PIECE_NAME: Record<PieceKind, string> = {
-  player: "Outfield",
-  keeper: "Goalkeeper",
+  player: "Player",
+  ball: "Ball",
   cone: "Cone",
-  mannequin: "Mannequin",
-  goal: "Goal",
+  bag: "Tackle bag",
+  posts: "Posts",
   pole: "Pole",
 };
 
 const PIECE_ICON: Record<PieceKind, LucideIcon> = {
   player: User,
-  keeper: Shield,
+  ball: CircleDot,
   cone: Cone,
-  mannequin: PersonStanding,
-  goal: Goal,
+  bag: RectangleHorizontal,
+  posts: Goal,
   pole: Flag,
 };
 
 const PIECE_HINT: Record<PieceKind, string> = {
   player: "Adds your player as a mannequin.",
-  keeper: "Adds a goalkeeper.",
+  ball: "Adds a rugby ball.",
   cone: "Adds a cone.",
-  mannequin: "Adds a mannequin.",
-  goal: "Adds a small goal.",
+  bag: "Adds a tackle bag.",
+  posts: "Adds goal posts.",
   pole: "Adds a pole.",
 };
 
 const MARK_ICON: Record<MarkKind, LucideIcon> = {
   pass: ArrowRight,
   run: Footprints,
-  dribble: Route,
+  kick: ArrowUpRight,
   press: SquareDashed,
   marker: MapPin,
 };
@@ -122,7 +122,7 @@ const MARK_ICON: Record<MarkKind, LucideIcon> = {
 const MARK_HINT: Record<MarkKind, string> = {
   pass: "Draws a pass.",
   run: "Draws a run.",
-  dribble: "Draws a dribble.",
+  kick: "Draws a kick.",
   press: "Draws a pressing zone.",
   marker: "Drops a marker.",
 };
@@ -130,7 +130,7 @@ const MARK_HINT: Record<MarkKind, string> = {
 const MARK_NAME: Record<MarkKind, string> = {
   pass: "Pass",
   run: "Run",
-  dribble: "Dribble",
+  kick: "Kick",
   press: "Pressing zone",
   marker: "Marker",
 };
@@ -274,7 +274,7 @@ function DrillEditorForm({ requestedId }: { requestedId: string | null }) {
       team: kind === "player" ? side : undefined,
       x: point?.x ?? windowBox.x + windowBox.width / 2,
       y: point?.y ?? windowBox.y + windowBox.height / 2,
-      label: kind === "player" || kind === "keeper" ? String(count) : "",
+      label: kind === "player" ? String(count) : "",
     };
     const clamped = clampPoint(piece);
     updateFrame([...shown.pieces, { ...piece, ...clamped }], shown.marks, true);
@@ -439,10 +439,10 @@ function DrillEditorForm({ requestedId }: { requestedId: string | null }) {
         workRest: record.workRest.trim(),
         repetitions: record.repetitions,
         players: {
-          attackers: record.attackers,
+          forwards: record.forwards,
+          backs: record.backs,
           defenders: record.defenders,
           neutrals: record.neutrals,
-          goalkeepers: record.goalkeepers,
         },
         equipment: commasFrom(record.equipment),
         progressions: linesFrom(record.progressions),
@@ -478,12 +478,12 @@ function DrillEditorForm({ requestedId }: { requestedId: string | null }) {
         className="editor-toolbar"
         data-editor-toolbar
         data-descriptions={descriptions ? "on" : "off"}
-        aria-label="Pitch tools"
+        aria-label="Field tools"
       >
         <div className="flex flex-col gap-1" role="group" aria-label="History">
           <ToolButton
             label="Undo"
-            description="Puts the pitch back one step."
+            description="Puts the field back one step."
             descriptions={descriptions}
             onShow={showHint}
             disabled={!canUndo}
@@ -503,7 +503,7 @@ function DrillEditorForm({ requestedId }: { requestedId: string | null }) {
           </ToolButton>
         </div>
         <div className="mx-auto h-px w-6 bg-slate-300" role="separator" />
-        <div className="flex flex-col gap-1" role="group" aria-label="Pitch view">
+        <div className="flex flex-col gap-1" role="group" aria-label="Field view">
           {PITCH_VIEWS.map((view) => {
             const Icon = VIEW_ICON[view];
             return (
@@ -568,7 +568,7 @@ function DrillEditorForm({ requestedId }: { requestedId: string | null }) {
         <div className="flex flex-col gap-1" role="group" aria-label="Draw">
           <ToolButton
             label="Move"
-            description="Drags pieces around the pitch."
+            description="Drags pieces around the field."
             active={tool === "move"}
             descriptions={descriptions}
             onShow={showHint}
@@ -666,7 +666,7 @@ function DrillEditorForm({ requestedId }: { requestedId: string | null }) {
           style={{ backgroundColor: pitchFill(board) }}
           data-pitch-color={pitchFill(board)}
           role="img"
-          aria-label="Drill editor pitch"
+          aria-label="Drill editor field"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -891,7 +891,7 @@ function DrillEditorForm({ requestedId }: { requestedId: string | null }) {
               }}
             />
           </div>
-          <p className="mt-2 text-xs font-medium text-slate-600">Drag a piece on the pitch, or tap an icon to drop one in the middle.</p>
+          <p className="mt-2 text-xs font-medium text-slate-600">Drag a piece on the field, or tap an icon to drop one in the middle.</p>
         </section>
         {notice ? <p className="text-sm font-semibold text-slate-800">{notice}</p> : null}
         {savedDrills.length > 0 ? (

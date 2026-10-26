@@ -17,7 +17,7 @@ export default function CoachPage() {
         <ActionCard href="/coach/roster" title="Squad" detail="Open one player for their rating, details, and training week." />
         <ActionCard href="/coach/drills" title="Run a drill" detail="Pick an age, then a skill level, and start the session clock." />
         <ActionCard href="/coach/editor" title="Drill editor" detail="Lay out the practice, record frames, and save the animation." />
-        <ActionCard href="/coach/match" title="Live match" detail="Place the allocated squad and keep the clock for players on the pitch." />
+        <ActionCard href="/coach/match" title="Live match" detail="Place the allocated squad and keep the clock for players on the field." />
       </div>
       <SessionPlanner />
     </div>

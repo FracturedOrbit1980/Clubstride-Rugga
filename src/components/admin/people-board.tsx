@@ -8,7 +8,7 @@ import { PlayerPhotoField, PlayerPortrait } from "@/components/club/player-photo
 import { PositionFields } from "@/components/club/position-fields";
 import { creditOf, outstandingOf, paidTotal, rand } from "@/lib/club/accounting";
 import { ageLabel, ensureYouthAges } from "@/lib/club/age";
-import { formatPosition, normalizePositions, type PositionChoice, type StandardPosition } from "@/lib/club/positions";
+import { ALL_ROUNDER, DEFAULT_POSITION, formatPosition, normalizePositions, type PositionChoice, type StandardPosition } from "@/lib/club/positions";
 import { digitsOf, joinName, searchPlayers, splitName } from "@/lib/club/registration";
 import { CORRESPONDENCE_CHANNELS, type ClubPlayer, type CorrespondenceChannel } from "@/lib/club/seed";
 import { formatDay } from "@/lib/club/week";
@@ -73,7 +73,7 @@ function CoachAssign({
         <input value={name} onChange={(event) => setName(event.target.value)} className="mt-1 block h-11 w-full rounded-md border border-slate-300 px-3 text-base" required />
       </label>
       <label className="block min-w-0 text-sm font-semibold text-slate-800">
-        Team and league
+        Team and competition
         <select value={teamId} onChange={(event) => setTeamId(event.target.value)} className="mt-1 block h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-base">
           {teams.map((team) => (
             <option key={team.id} value={team.id}>
@@ -112,7 +112,7 @@ function RegisterForm({
   const [idNumber, setIdNumber] = useState("");
   const [mobile, setMobile] = useState("");
   const [number, setNumber] = useState(1);
-  const [role, setRole] = useState<PositionChoice>("Central midfielder");
+  const [role, setRole] = useState<PositionChoice>(DEFAULT_POSITION);
   const [roles, setRoles] = useState<StandardPosition[]>([]);
   const [photo, setPhoto] = useState("");
   const [notice, setNotice] = useState("");
@@ -234,7 +234,7 @@ function RegisterForm({
           roles={roles}
           onRole={(next) => {
             setRole(next);
-            if (next !== "All-rounder") setRoles([]);
+            if (next !== ALL_ROUNDER) setRoles([]);
           }}
           onToggle={(item) => setRoles((current) => (current.includes(item) ? current.filter((role) => role !== item) : [...current, item]))}
           field="register-position"
@@ -543,7 +543,7 @@ function PlayerRecord({
             roles={roles}
             onRole={(next) => {
               setRole(next);
-              if (next !== "All-rounder") setRoles([]);
+              if (next !== ALL_ROUNDER) setRoles([]);
             }}
             onToggle={(item) => setRoles((current) => (current.includes(item) ? current.filter((entry) => entry !== item) : [...current, item]))}
             field={`record-${player.id}`}

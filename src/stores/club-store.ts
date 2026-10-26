@@ -3,10 +3,10 @@ import { persist } from "zustand/middleware";
 
 import { ageNumber, ensureYouthAges, sortByAge } from "@/lib/club/age";
 import { isIsoDate, todayIso } from "@/lib/club/accounting";
-import { normalizePositions } from "@/lib/club/positions";
+import { DEFAULT_POSITION, normalizePositions } from "@/lib/club/positions";
 import { normalizePlan, normalizePromise } from "@/lib/club/agreements";
 import { canonicalDivision, canonicalTeamName, type Division, type DrillLevel, type DrillType, type MomentOfGame, type PlayerCount, type SetupDiagram } from "@/lib/club/catalog";
-import { isDrillLevel, isDrillType, isMoment, skillOf, withUefaDrills, youthAgeOf } from "@/lib/club/drill-record";
+import { isDrillLevel, isDrillType, isMoment, skillOf, withOfficialDrills, youthAgeOf } from "@/lib/club/drill-record";
 import { DEFAULT_PITCH_COLOR, type DrillBoard } from "@/lib/club/board";
 import { mergeLibraryBoards } from "@/lib/club/library-boards";
 import { placeOnU12Prem, playerId, SQUAD_TEAM_ID, type RosterRow } from "@/lib/club/roster";
@@ -205,8 +205,8 @@ export const useClubStore = create<ClubState>()(
               ageBand: input.targetAgeGroup,
               youthAge: youthAgeOf({ targetAgeGroup: input.targetAgeGroup }),
               skillLevel: skillOf({ level: input.level }),
-              minPlayers: input.players.attackers + input.players.defenders + input.players.neutrals,
-              maxPlayers: input.players.attackers + input.players.defenders + input.players.neutrals,
+              minPlayers: input.players.forwards + input.players.backs + input.players.defenders + input.players.neutrals,
+              maxPlayers: input.players.forwards + input.players.backs + input.players.defenders + input.players.neutrals,
               pitchLengthM: 0,
               pitchWidthM: 0,
               diagram: input.diagram,
@@ -311,7 +311,7 @@ export const useClubStore = create<ClubState>()(
                 },
               ],
               squadNumber: row.squadNumber,
-              position: "Central midfielder",
+              position: DEFAULT_POSITION,
               positions: [],
               teamId: "",
               homework: "",
@@ -639,7 +639,7 @@ export const useClubStore = create<ClubState>()(
           };
         }),
       saveCustomFormation: (name, slots) => {
-        const trimmed = name.trim() || "Custom formation 1";
+        const trimmed = name.trim() || "Custom shape 1";
         const existing = get().customFormations.find((item) => item.name.toLowerCase() === trimmed.toLowerCase());
         if (existing) {
           set((state) => ({
@@ -688,13 +688,15 @@ export const useClubStore = create<ClubState>()(
             ageBand: existing?.ageBand ?? existing?.targetAgeGroup ?? "All ages",
             youthAge: existing?.youthAge ?? youthAgeOf({ targetAgeGroup: existing?.targetAgeGroup, ageBand: existing?.ageBand }),
             skillLevel: existing?.skillLevel ?? skillOf({ level: input.level }),
-            minPlayers: existing?.minPlayers ?? input.players.attackers + input.players.defenders + input.players.neutrals,
-            maxPlayers: existing?.maxPlayers ?? input.players.attackers + input.players.defenders + input.players.neutrals,
+            minPlayers:
+              existing?.minPlayers ?? input.players.forwards + input.players.backs + input.players.defenders + input.players.neutrals,
+            maxPlayers:
+              existing?.maxPlayers ?? input.players.forwards + input.players.backs + input.players.defenders + input.players.neutrals,
             pitchLengthM: existing?.pitchLengthM ?? 0,
             pitchWidthM: existing?.pitchWidthM ?? 0,
-            diagram: existing?.diagram ?? "square",
+            diagram: existing?.diagram ?? "gates",
             pitchSetup: input.pitchSetup,
-            instructions: input.instructions || input.pitchSetup || "Lay out on the pitch.",
+            instructions: input.instructions || input.pitchSetup || "Lay the drill out on the field.",
             coachingPoints: input.coachingPoints,
             defaultDurationSeconds: existing?.defaultDurationSeconds ?? input.durationSeconds,
             durationSeconds: input.durationSeconds,
@@ -815,7 +817,7 @@ export const useClubStore = create<ClubState>()(
             previousTeam === SQUAD_TEAM_ID ||
             previousTeam === placed.teamId ||
             (previousGroup ? ageNumber(previousGroup.name) === 12 : true));
-        const drills = withUefaDrills(saved.drills, baseline.drills);
+        const drills = withOfficialDrills(saved.drills, baseline.drills);
         return {
           ...current,
           ...saved,

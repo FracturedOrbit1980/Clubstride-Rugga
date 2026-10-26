@@ -5,7 +5,7 @@ import { useState, type ReactNode } from "react";
 import { DrillRecordFields, commasFrom, emptyDraft, linesFrom, type DrillRecordDraft } from "@/components/drills/drill-record-fields";
 import { Button } from "@/components/ui/button";
 import { ageLabel, ageNumber, sortByAge } from "@/lib/club/age";
-import { SETUP_DIAGRAMS, type SetupDiagram } from "@/lib/club/catalog";
+import { SETUP_DIAGRAMS, SETUP_DIAGRAM_LABEL, type SetupDiagram } from "@/lib/club/catalog";
 import { useClubStore } from "@/stores/club-store";
 
 export function DrillForm() {
@@ -15,7 +15,7 @@ export function DrillForm() {
   const [titleTouched, setTitleTouched] = useState(false);
   const [age, setAge] = useState("All ages");
   const [minutes, setMinutes] = useState(5);
-  const [diagram, setDiagram] = useState<SetupDiagram>("square");
+  const [diagram, setDiagram] = useState<SetupDiagram>("ruck");
   const [pitchSetup, setPitchSetup] = useState("");
   const [instructions, setInstructions] = useState("");
   const [points, setPoints] = useState("");
@@ -40,10 +40,10 @@ export function DrillForm() {
           workRest: draft.workRest.trim(),
           repetitions: draft.repetitions,
           players: {
-            attackers: draft.attackers,
+            forwards: draft.forwards,
+            backs: draft.backs,
             defenders: draft.defenders,
             neutrals: draft.neutrals,
-            goalkeepers: draft.goalkeepers,
           },
           equipment: commasFrom(draft.equipment),
           progressions: linesFrom(draft.progressions),
@@ -60,7 +60,7 @@ export function DrillForm() {
         });
         setDraft(emptyDraft());
         setTitleTouched(false);
-        setDiagram("square");
+        setDiagram("ruck");
         setPitchSetup("");
         setInstructions("");
         setPoints("");
@@ -95,7 +95,7 @@ export function DrillForm() {
           <select value={diagram} onChange={(event) => setDiagram(event.target.value as SetupDiagram)} className={inputClass}>
             {SETUP_DIAGRAMS.map((item) => (
               <option key={item} value={item}>
-                {item}
+                {SETUP_DIAGRAM_LABEL[item]}
               </option>
             ))}
           </select>
@@ -111,7 +111,7 @@ export function DrillForm() {
           />
         </Field>
       </div>
-      <Field label="Pitch setup">
+      <Field label="Field setup">
         <input value={pitchSetup} onChange={(event) => setPitchSetup(event.target.value)} className={inputClass} required />
       </Field>
       <Field label="Instructions">

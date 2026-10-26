@@ -1,11 +1,11 @@
-export const PITCH_VIEWS = ["full", "half", "box", "thirds", "channel"] as const;
+export const PITCH_VIEWS = ["full", "half", "redzone", "thirds", "channel"] as const;
 
 export type PitchView = (typeof PITCH_VIEWS)[number];
 
 export const PITCH_VIEW_LABEL: Record<PitchView, string> = {
   full: "Full",
   half: "Half",
-  box: "Box",
+  redzone: "22m",
   thirds: "Thirds",
   channel: "Channel",
 };
@@ -14,27 +14,27 @@ export const SESSION_PHASES = ["Warm-up", "Technical", "Skill", "Small-sided gam
 
 export type SessionPhase = (typeof SESSION_PHASES)[number];
 
-export const PIECE_KINDS = ["player", "keeper", "cone", "mannequin", "goal", "pole"] as const;
+export const PIECE_KINDS = ["player", "ball", "cone", "bag", "posts", "pole"] as const;
 
 export type PieceKind = (typeof PIECE_KINDS)[number];
 
 export const PIECE_LABEL: Record<PieceKind, string> = {
   player: "Player",
-  keeper: "Keeper",
+  ball: "Ball",
   cone: "Cone",
-  mannequin: "Mannequin",
-  goal: "Goal",
+  bag: "Tackle bag",
+  posts: "Posts",
   pole: "Pole",
 };
 
-export const MARK_KINDS = ["pass", "run", "dribble", "press", "marker"] as const;
+export const MARK_KINDS = ["pass", "run", "kick", "press", "marker"] as const;
 
 export type MarkKind = (typeof MARK_KINDS)[number];
 
 export const MARK_LABEL: Record<MarkKind, string> = {
   pass: "Pass",
   run: "Run",
-  dribble: "Dribble",
+  kick: "Kick",
   press: "Press",
   marker: "Marker",
 };
@@ -102,7 +102,7 @@ export interface PitchWindow {
 export const PITCH_WINDOW: Record<PitchView, PitchWindow> = {
   full: { x: 0, y: 0, width: 100, height: 64 },
   half: { x: 50, y: 0, width: 50, height: 64 },
-  box: { x: 80, y: 12, width: 20, height: 40 },
+  redzone: { x: 68, y: 6, width: 32, height: 52 },
   thirds: { x: 0, y: 0, width: 100, height: 64 },
   channel: { x: 38, y: 0, width: 24, height: 64 },
 };

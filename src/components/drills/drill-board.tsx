@@ -101,7 +101,7 @@ function DrillBoardEditor({
       kind,
       x: windowBox.x + windowBox.width / 2 + (count % 5) * 2,
       y: windowBox.y + windowBox.height / 2 + (count % 3) * 2,
-      label: kind === "player" || kind === "keeper" ? String(count) : "",
+      label: kind === "player" ? String(count) : "",
     };
     const point = clampPoint(piece);
     updateFrame([...shown.pieces, { ...piece, ...point }], shown.marks);
@@ -202,7 +202,7 @@ function DrillBoardEditor({
           data-pitch="session"
           data-pitch-color={pitchFill(board)}
           role="img"
-          aria-label="Drill pitch"
+          aria-label="Drill field"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -353,12 +353,26 @@ export function PitchLines({ view }: { view: PitchView }) {
   return (
     <g fill="none" stroke="#fff6f5" strokeWidth="0.6">
       <rect x="1" y="1" width="98" height="62" />
+      <rect x="1" y="1" width="7" height="62" fill="#fff6f5" fillOpacity="0.06" stroke="none" />
+      <rect x="92" y="1" width="7" height="62" fill="#fff6f5" fillOpacity="0.06" stroke="none" />
+      <line x1="8" y1="1" x2="8" y2="63" />
+      <line x1="92" y1="1" x2="92" y2="63" />
       <line x1="50" y1="1" x2="50" y2="63" />
-      <circle cx="50" cy="32" r="8" />
-      <rect x="1" y="16" width="14" height="32" />
-      <rect x="85" y="16" width="14" height="32" />
-      <rect x="1" y="24" width="5" height="16" />
-      <rect x="94" y="24" width="5" height="16" />
+      <line x1="26.5" y1="1" x2="26.5" y2="63" />
+      <line x1="73.5" y1="1" x2="73.5" y2="63" />
+      <g strokeDasharray="1.2 1" strokeOpacity="0.8">
+        <line x1="41.6" y1="1" x2="41.6" y2="63" />
+        <line x1="58.4" y1="1" x2="58.4" y2="63" />
+        <line x1="8" y1="5" x2="92" y2="5" />
+        <line x1="8" y1="59" x2="92" y2="59" />
+      </g>
+      <g strokeWidth="0.8">
+        <path d="M8 28 v8 M6.4 28 h1.6 M6.4 36 h1.6" />
+        <path d="M92 28 v8 M93.6 28 h-1.6 M93.6 36 h-1.6" />
+      </g>
+      {view === "redzone" ? (
+        <rect x="73.5" y="1" width="18.5" height="62" fill="#fde68a" fillOpacity="0.16" stroke="none" />
+      ) : null}
       {view === "thirds" ? (
         <g stroke="#fde68a" strokeDasharray="1.2 1">
           <line x1="33.3" y1="1" x2="33.3" y2="63" />
@@ -386,14 +400,14 @@ export function MarkShape({ mark, markerId }: { mark: BoardMark; markerId: strin
     return <polygon points={points} fill="#f59e0b" fillOpacity="0.35" stroke="#fef3c7" strokeWidth={DRAW_STROKE} />;
   }
   if (!end) return null;
-  const dash = mark.kind === "run" ? "1.4 0.8" : mark.kind === "dribble" ? "0.3 0.8" : undefined;
+  const dash = mark.kind === "run" ? "1.4 0.8" : mark.kind === "kick" ? "0.3 0.8" : undefined;
   return (
     <line
       x1={start.x}
       y1={start.y}
       x2={end.x}
       y2={end.y}
-      stroke={mark.kind === "dribble" ? "#e2e8f0" : "#f8fafc"}
+      stroke={mark.kind === "kick" ? "#e2e8f0" : "#f8fafc"}
       strokeWidth={DRAW_STROKE}
       strokeDasharray={dash}
       markerEnd={`url(#${markerId})`}
@@ -414,28 +428,35 @@ export function PieceShape({
 }) {
   const ring = selected ? "#fef08a" : "#ffffff";
   const palette = colors ?? { player: DEFAULT_PLAYER_COLOR, opponent: DEFAULT_OPPONENT_COLOR };
-  const person = piece.kind === "player" || piece.kind === "keeper" || piece.kind === "mannequin";
-  const fill =
-    piece.kind === "mannequin"
-      ? "#e2e8f0"
-      : piece.team === "opponent"
-        ? palette.opponent
-        : piece.kind === "keeper"
-          ? "#f59e0b"
-          : palette.player;
+  const fill = piece.team === "opponent" ? palette.opponent : palette.player;
   return (
     <g transform={`translate(${piece.x} ${piece.y})`} onPointerDown={onPointerDown} className="cursor-grab">
       <circle r="2.6" fill="transparent" />
-      {person ? <MannequinFigure fill={fill} ring={ring} label={piece.kind === "mannequin" ? "" : piece.label} /> : null}
+      {piece.kind === "player" ? <MannequinFigure fill={fill} ring={ring} label={piece.label} /> : null}
+      {piece.kind === "ball" ? (
+        <g>
+          <circle r="1.5" fill="#f8fafc" stroke={ring} strokeWidth="0.25" />
+          <path d="M-0.7 0 h1.4" stroke="#0f172a" strokeWidth="0.25" />
+        </g>
+      ) : null}
       {piece.kind === "cone" ? <polygon points="0,-2.2 -1.6,1.8 1.6,1.8" fill="#f97316" stroke={ring} strokeWidth="0.3" /> : null}
-      {piece.kind === "goal" ? <path d="M-2.4 -1.4 h4.8 v3.2 h-4.8" fill="none" stroke={ring} strokeWidth="0.45" /> : null}
+      {piece.kind === "bag" ? (
+        <rect x="-2.2" y="-1.3" width="4.4" height="2.6" rx="0.6" fill="#475569" stroke={ring} strokeWidth="0.3" />
+      ) : null}
+      {piece.kind === "posts" ? (
+        <g stroke={ring} strokeWidth="0.45">
+          <line x1="-1.6" y1="-2.6" x2="-1.6" y2="2.6" />
+          <line x1="1.6" y1="-2.6" x2="1.6" y2="2.6" />
+          <line x1="-1.6" y1="0" x2="1.6" y2="0" />
+        </g>
+      ) : null}
       {piece.kind === "pole" ? (
         <g stroke={ring} strokeWidth="0.45">
           <line y1="-2.4" y2="2.2" />
           <circle cy="-2.4" r="0.45" fill="#f8fafc" />
         </g>
       ) : null}
-      {piece.label && !person ? (
+      {piece.label && piece.kind !== "player" ? (
         <text y="0.7" textAnchor="middle" fontSize="2" fontWeight="700" fill="#ffffff">
           {piece.label}
         </text>

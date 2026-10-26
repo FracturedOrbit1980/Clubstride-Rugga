@@ -15,7 +15,7 @@ import {
 } from "@/components/match/formation-pitch";
 import { TeamPicker, useCoachTeam } from "@/components/coach/team-picker";
 import { DEFAULT_PITCH_COLOR } from "@/lib/club/board";
-import { formatPosition, playsInGoal } from "@/lib/club/positions";
+import { formatPosition } from "@/lib/club/positions";
 import { useClubStore } from "@/stores/club-store";
 import { useMatchStore, type PlayerMatchState } from "@/stores/match-store";
 
@@ -46,9 +46,9 @@ export function LiveMatchTracker() {
   const [selectedOn, setSelectedOn] = useState<string | null>(null);
   const [opponent, setOpponent] = useState("");
   const [saved, setSaved] = useState(false);
-  const [formation, setFormation] = useState<string>("4-4-2");
+  const [formation, setFormation] = useState<string>("Standard XV");
   const [layout, setLayout] = useState<{ playerId: string; x: number; y: number }[] | null>(null);
-  const [formationName, setFormationName] = useState("Custom formation 1");
+  const [formationName, setFormationName] = useState("Custom shape 1");
   const [nameTouched, setNameTouched] = useState(false);
   const [formationSaved, setFormationSaved] = useState(false);
   const shownName = nameTouched ? formationName : nextCustomFormationName(customFormations);
@@ -69,7 +69,7 @@ export function LiveMatchTracker() {
         name: player.name,
         squadNumber: player.squadNumber,
         position: formatPosition(player),
-        isOnPitch: index < 11,
+        isOnPitch: index < 15,
         minutesPlayed: 0,
       }));
     const current = useMatchStore.getState().players.map((player) => `${player.playerId}:${player.position}`).join("|");
@@ -143,22 +143,12 @@ export function LiveMatchTracker() {
 
   function saveFormation() {
     const spots = positionsFor(formation, layout);
-    const onPitchIds = players.filter((player) => player.isOnPitch);
-    const keeper = onPitchIds.find((player) => playsInGoal(player.position));
-    const rest = onPitchIds
-      .filter((player) => player.playerId !== keeper?.playerId)
-      .sort((a, b) => a.squadNumber - b.squadNumber);
-    const ordered = keeper ? [keeper, ...rest] : rest;
-    const byId = new Map(spots.map((spot) => [spot.playerId, spot]));
-    const slots = ordered.flatMap((player) => {
-      const spot = byId.get(player.playerId);
-      return spot ? [{ x: spot.x, y: spot.y }] : [];
-    });
-    if (slots.length === 0) return;
+    if (spots.length === 0) return;
+    const slots = spots.map((spot) => ({ x: spot.x, y: spot.y }));
     const id = saveCustomFormation(shownName, slots);
     setFormation(id);
     setLayout(null);
-    setFormationName(shownName.trim() || "Custom formation 1");
+    setFormationName(shownName.trim() || "Custom shape 1");
     setNameTouched(true);
     setFormationSaved(true);
   }
@@ -168,8 +158,10 @@ export function LiveMatchTracker() {
       <TeamPicker />
       <div className="match-stage min-w-0">
         <div className="flex min-h-0 min-w-0 flex-col">
-          <div className="mb-2 space-y-2" aria-label="Formations">
-            <p className="text-xs font-semibold text-slate-600">Goalkeeper included in every shape.</p>
+          <div className="mb-2 space-y-2" aria-label="Match shapes">
+            <p className="text-xs font-semibold text-slate-600">
+              Every shape starts on the numbered jersey positions. Drag a player to adjust.
+            </p>
             {FORMATION_GROUPS.map((group) => (
               <div key={group.id} data-formation-group={group.id}>
                 <p className="text-xs font-bold text-slate-800">{group.label}</p>
@@ -233,7 +225,7 @@ export function LiveMatchTracker() {
             />
             <div className="mt-2 flex flex-wrap items-end gap-2">
               <label className="min-w-[12rem] flex-1 text-sm font-semibold text-slate-800">
-                Formation name
+                Shape name
                 <input
                   data-field="formation-name"
                   value={shownName}
@@ -333,7 +325,7 @@ export function LiveMatchTracker() {
         <p className="mt-3 text-center text-sm font-medium text-slate-300">
           {emptyMessage ? `${emptyMessage} ` : null}
           {saved ? "Minutes saved. Players with time on the pitch are marked present." : null}{" "}
-          Tap a player on the pitch, then a bench player, to substitute. Minutes accrue only while the clock runs.
+          Tap a player on the field, then a bench player, to substitute. Minutes accrue only while the clock runs.
         </p>
       </section>
       </div>

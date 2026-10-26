@@ -1,6 +1,7 @@
 import {
   DRILL_LEVELS,
   DRILL_TYPES,
+  LICENSE_LEVELS,
   MOMENTS_OF_GAME,
   SKILL_LEVELS,
   type DrillLevel,
@@ -71,7 +72,7 @@ function oneSentence(text: string) {
 
 function setupSentence(pitchSetup?: string, dimensions?: string, playerSetup?: string) {
   const raw = (pitchSetup || [dimensions, playerSetup].filter(Boolean).join(", ")).trim();
-  if (!raw) return "Set the players out on the pitch.";
+  if (!raw) return "Set the players out on the field.";
   const bits = raw
     .split(/(?<=\.)\s+/)
     .map((bit) => bit.replace(/[.]+$/, "").trim())
@@ -79,13 +80,17 @@ function setupSentence(pitchSetup?: string, dimensions?: string, playerSetup?: s
     .map((bit, index) => (index === 0 ? bit : `${bit.charAt(0).toLowerCase()}${bit.slice(1)}`));
   const joined = bits.join(", ");
   const body = `${joined.charAt(0).toLowerCase()}${joined.slice(1)}`;
+  const sizing = body.match(/^(\d+\s*x\s*\d+m)\b[\s,]*([\s\S]*)$/i);
+  if (sizing) {
+    const rest = sizing[2].replace(/^(grid|area|square|rectangle|lane|channel|box)\b[\s,]*/i, "").trim();
+    return `Set this up in a ${sizing[1]} area${rest ? (rest.startsWith("with") ? ` ${rest}` : `, ${rest}`) : ""}.`;
+  }
   if (/^(a|an|the)\b/i.test(body)) return `Set this up as ${body}.`;
   return `Set this up as a ${body}.`;
 }
 
 function coachingSentence(point?: string) {
   const raw = (point || "Watch the first action").trim().replace(/[.]+$/, "");
-  if (/^ball close when turning$/i.test(raw)) return "Keep the ball close when turning.";
   if (/^width before the switch$/i.test(raw)) return "Use width before the switch.";
   if (/^numbers beyond the ball$/i.test(raw)) return "Get numbers beyond the ball.";
   if (/^first pass forward$/i.test(raw)) return "Play the first pass forward.";
@@ -101,17 +106,17 @@ export function plainDrillBlurb(drill: {
   playerSetup?: string;
   coachingPoints?: string[];
 }) {
-  const action = oneSentence(drill.instructions || "Players work the pattern on the pitch.");
+  const action = oneSentence(drill.instructions || "Players work the pattern on the field.");
   const setup = setupSentence(drill.pitchSetup, drill.dimensions, drill.playerSetup);
   const point = coachingSentence(drill.coachingPoints?.[0]);
   return `${action} ${setup} ${point}`;
 }
 
 export function playerCountLine(players: PlayerCount) {
-  return `Attackers ${players.attackers} · Defenders ${players.defenders} · Neutrals ${players.neutrals} · Goalkeepers ${players.goalkeepers}`;
+  return `Forwards ${players.forwards} · Backs ${players.backs} · Defenders ${players.defenders} · Neutrals ${players.neutrals}`;
 }
 
-export function withUefaDrills(saved: Partial<ClubDrill>[] | undefined, baseline: ClubDrill[]): ClubDrill[] {
+export function withOfficialDrills(saved: Partial<ClubDrill>[] | undefined, baseline: ClubDrill[]): ClubDrill[] {
   const source = saved?.length ? saved : baseline;
   const custom: ClubDrill[] = [];
   const officialById = new Map<string, ClubDrill>();
@@ -166,7 +171,7 @@ function normalizeCustomDrill(raw: Partial<ClubDrill> & { objectiveCategory?: st
   const drillType = isDrillType(raw.drillType) ? raw.drillType : typeFromLegacy(legacy.objectiveCategory, raw.diagram, raw.title);
   const level = isDrillLevel(raw.level) ? raw.level : OLD_LEVEL[raw.level ?? ""] ?? "Youth U9-12";
   const moment = isMoment(raw.moment) ? raw.moment : momentFromLegacy(drillType, raw.title);
-  const players = raw.players ?? { attackers: 0, defenders: 0, neutrals: 0, goalkeepers: 0 };
+  const players = raw.players ?? { forwards: 0, backs: 0, defenders: 0, neutrals: 0 };
   const title = (raw.title ?? "TP - New drill").trim().slice(0, 60) || "TP - New drill";
   return {
     id: raw.id || `dr-${Date.now()}`,
@@ -183,13 +188,13 @@ function normalizeCustomDrill(raw: Partial<ClubDrill> & { objectiveCategory?: st
     workRest: raw.workRest ?? "",
     repetitions: Math.min(30, Math.max(1, count(raw.repetitions) || 1)),
     players: {
-      attackers: count(players.attackers),
+      forwards: count(players.forwards),
+      backs: count(players.backs),
       defenders: count(players.defenders),
       neutrals: count(players.neutrals),
-      goalkeepers: count(players.goalkeepers),
     },
     equipment: textList(raw.equipment),
-    diagram: raw.diagram ?? "square",
+    diagram: raw.diagram ?? "gates",
     pitchSetup: raw.pitchSetup ?? "",
     instructions: raw.instructions ?? "",
     coachingPoints: textList(raw.coachingPoints),
@@ -199,8 +204,10 @@ function normalizeCustomDrill(raw: Partial<ClubDrill> & { objectiveCategory?: st
     ageBand: raw.ageBand || raw.targetAgeGroup || "All ages",
     youthAge: youthAgeOf(raw),
     skillLevel: skillOf(raw),
-    minPlayers: count(raw.minPlayers) || count(players.attackers) + count(players.defenders) + count(players.neutrals),
-    maxPlayers: count(raw.maxPlayers) || count(players.attackers) + count(players.defenders) + count(players.neutrals),
+    minPlayers:
+      count(raw.minPlayers) || count(players.forwards) + count(players.backs) + count(players.defenders) + count(players.neutrals),
+    maxPlayers:
+      count(raw.maxPlayers) || count(players.forwards) + count(players.backs) + count(players.defenders) + count(players.neutrals),
     pitchLengthM: meters(raw.pitchLengthM),
     pitchWidthM: meters(raw.pitchWidthM),
     defaultDurationSeconds: raw.defaultDurationSeconds ?? raw.durationSeconds ?? 300,
@@ -210,27 +217,36 @@ function normalizeCustomDrill(raw: Partial<ClubDrill> & { objectiveCategory?: st
   };
 }
 
+const OLD_LICENSE: Record<string, LicenseLevel> = {
+  "UEFA C": "SA Rugby Level 1",
+  "UEFA B": "SA Rugby Level 2",
+  "UEFA A": "SA Rugby Level 3",
+  "UEFA Pro": "SA Rugby Elite",
+};
+
 function licenseOf(value: unknown): LicenseLevel {
-  return value === "Grassroots" || value === "UEFA C" || value === "UEFA B" || value === "UEFA A" || value === "UEFA Pro"
-    ? value
-    : "Grassroots";
+  if (typeof value === "string" && (LICENSE_LEVELS as readonly string[]).includes(value)) return value as LicenseLevel;
+  return OLD_LICENSE[String(value)] ?? "Grassroots";
 }
 
 function typeFromLegacy(category: string | undefined, diagram: DrillTemplate["diagram"] | undefined, title: string | undefined): DrillType {
   const name = (title ?? "").toLowerCase();
-  if (diagram === "rondo" || name.includes("rondo")) return "Rondo";
-  if (category === "Physical") return "Physical";
-  if (category === "Set Piece") return "PoP";
-  if (category === "Technical") return name.includes("1v1") || name.includes("cutback") ? "SP" : "TP";
-  if (category === "Tactical") return name.includes("4v4") || name.includes("possession") ? "SSG" : "PoP";
+  if (diagram === "lineout" || diagram === "scrum" || name.includes("lineout") || name.includes("scrum")) return "Set piece";
+  if (diagram === "ruck" || diagram === "maul" || name.includes("ruck") || name.includes("maul")) return "Contact";
+  if (name.includes("rondo") || name.includes("keep-ball") || name.includes("possession")) return "SSG";
+  if (name.includes("11v11") || name.includes("15v15")) return "15v15";
+  if (category === "Physical") return "Contact";
+  if (category === "Set Piece") return "Set piece";
+  if (category === "Technical") return name.includes("1v1") || name.includes("kick") ? "SP" : "TP";
+  if (category === "Tactical") return name.includes("4v4") || name.includes("team") ? "SSG" : "Unit";
   return "TP";
 }
 
 function momentFromLegacy(type: DrillType, title: string | undefined): MomentOfGame {
   const name = (title ?? "").toLowerCase();
-  if (name.includes("counter")) return "T2A";
+  if (name.includes("counter") || name.includes("turnover")) return "T2A";
   if (name.includes("recover") || name.includes("rest defence") || name.includes("rest defense")) return "T2D";
-  if (type === "Physical" && name.includes("press")) return "OOP";
-  if (name.includes("press") || name.includes("defend")) return "OOP";
+  if (type === "Contact" && name.includes("press")) return "OOP";
+  if (name.includes("press") || name.includes("defend") || name.includes("tackle")) return "OOP";
   return "IP";
 }

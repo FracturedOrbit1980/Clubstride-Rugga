@@ -4,24 +4,11 @@ import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 
 import { MannequinFigure } from "@/components/pitch/mannequin-figure";
 import { DEFAULT_PITCH_COLOR, DEFAULT_PLAYER_COLOR } from "@/lib/club/board";
-import { playsInGoal } from "@/lib/club/positions";
+import { positionNumber } from "@/lib/club/positions";
 import type { CustomFormation } from "@/lib/club/seed";
 import type { PlayerMatchState } from "@/stores/match-store";
 
-export const FORMATIONS = [
-  "2-2",
-  "1-2-1",
-  "2-1-1",
-  "2-3-1",
-  "3-2-1",
-  "3-1-2",
-  "3-3-2",
-  "3-2-3",
-  "2-3-3",
-  "4-4-2",
-  "4-3-3",
-  "3-5-2",
-] as const;
+export const FORMATIONS = ["Standard XV", "12-a-side", "10-a-side", "7-a-side"] as const;
 
 export type FormationName = (typeof FORMATIONS)[number];
 
@@ -30,76 +17,65 @@ export const FORMATION_GROUPS: {
   label: string;
   formations: FormationName[];
 }[] = [
-  { id: "eleven", label: "11-a-side", formations: ["4-4-2", "4-3-3", "3-5-2"] },
-  { id: "u10-u11", label: "U10 and U11 · 9-a-side", formations: ["3-3-2", "3-2-3", "2-3-3"] },
-  { id: "u8-u9", label: "U8 and U9 · 7-a-side", formations: ["2-3-1", "3-2-1", "3-1-2"] },
-  { id: "u6-u7", label: "U6 and U7 · 5-a-side", formations: ["2-2", "1-2-1", "2-1-1"] },
+  { id: "senior", label: "U14 and older · 15-a-side", formations: ["Standard XV"] },
+  { id: "u12-u13", label: "U12 and U13 · 12-a-side", formations: ["12-a-side"] },
+  { id: "u10-u11", label: "U10 and U11 · 10-a-side", formations: ["10-a-side"] },
+  { id: "u6-u9", label: "U6 to U9 · 7-a-side", formations: ["7-a-side"] },
 ];
 
-const KEEPER = { x: 10, y: 32 };
-
-function outfieldLine(count: number, x: number) {
-  const lanes: Record<number, number[]> = {
-    1: [32],
-    2: [20, 44],
-    3: [12, 32, 52],
-  };
-  return lanes[count].map((y) => ({ x, y }));
-}
-
-function smallSided(lines: number[]) {
-  const xs = lines.length === 2 ? [38, 72] : [30, 52, 74];
-  return [KEEPER, ...lines.flatMap((count, index) => outfieldLine(count, xs[index]))];
-}
-
+/** Slots follow the numbered jersey order: forwards first, then the backline. */
 const SLOTS: Record<FormationName, { x: number; y: number }[]> = {
-  "2-2": smallSided([2, 2]),
-  "1-2-1": smallSided([1, 2, 1]),
-  "2-1-1": smallSided([2, 1, 1]),
-  "2-3-1": smallSided([2, 3, 1]),
-  "3-2-1": smallSided([3, 2, 1]),
-  "3-1-2": smallSided([3, 1, 2]),
-  "3-3-2": smallSided([3, 3, 2]),
-  "3-2-3": smallSided([3, 2, 3]),
-  "2-3-3": smallSided([2, 3, 3]),
-  "4-4-2": [
-    { x: 10, y: 32 },
-    { x: 26, y: 10 },
-    { x: 26, y: 24 },
-    { x: 26, y: 40 },
-    { x: 26, y: 54 },
-    { x: 50, y: 10 },
-    { x: 50, y: 24 },
-    { x: 50, y: 40 },
-    { x: 50, y: 54 },
-    { x: 78, y: 24 },
-    { x: 78, y: 40 },
-  ],
-  "4-3-3": [
-    { x: 10, y: 32 },
-    { x: 26, y: 10 },
-    { x: 26, y: 24 },
-    { x: 26, y: 40 },
-    { x: 26, y: 54 },
-    { x: 50, y: 16 },
+  "Standard XV": [
+    { x: 58, y: 27 },
+    { x: 55, y: 32 },
+    { x: 58, y: 37 },
+    { x: 63, y: 24 },
+    { x: 63, y: 40 },
+    { x: 68, y: 19 },
+    { x: 68, y: 45 },
+    { x: 72, y: 32 },
     { x: 50, y: 32 },
-    { x: 50, y: 48 },
-    { x: 80, y: 12 },
-    { x: 80, y: 32 },
-    { x: 80, y: 52 },
+    { x: 44, y: 32 },
+    { x: 30, y: 52 },
+    { x: 37, y: 40 },
+    { x: 37, y: 24 },
+    { x: 30, y: 12 },
+    { x: 19, y: 32 },
   ],
-  "3-5-2": [
-    { x: 10, y: 32 },
-    { x: 26, y: 16 },
-    { x: 26, y: 32 },
-    { x: 26, y: 48 },
-    { x: 52, y: 8 },
-    { x: 52, y: 20 },
-    { x: 52, y: 32 },
-    { x: 52, y: 44 },
-    { x: 52, y: 56 },
-    { x: 80, y: 24 },
-    { x: 80, y: 40 },
+  "12-a-side": [
+    { x: 58, y: 27 },
+    { x: 55, y: 32 },
+    { x: 58, y: 37 },
+    { x: 63, y: 24 },
+    { x: 63, y: 40 },
+    { x: 69, y: 32 },
+    { x: 50, y: 32 },
+    { x: 43, y: 32 },
+    { x: 36, y: 40 },
+    { x: 36, y: 24 },
+    { x: 28, y: 52 },
+    { x: 28, y: 12 },
+  ],
+  "10-a-side": [
+    { x: 58, y: 27 },
+    { x: 55, y: 32 },
+    { x: 58, y: 37 },
+    { x: 63, y: 24 },
+    { x: 63, y: 40 },
+    { x: 50, y: 32 },
+    { x: 42, y: 32 },
+    { x: 34, y: 32 },
+    { x: 26, y: 52 },
+    { x: 26, y: 12 },
+  ],
+  "7-a-side": [
+    { x: 57, y: 27 },
+    { x: 54, y: 32 },
+    { x: 57, y: 37 },
+    { x: 50, y: 32 },
+    { x: 42, y: 32 },
+    { x: 34, y: 26 },
+    { x: 24, y: 40 },
   ],
 };
 
@@ -107,13 +83,15 @@ export function placeOnPitch(players: PlayerMatchState[], formation: FormationNa
   return placeInSlots(players, SLOTS[formation] ?? []);
 }
 
+function lineUpOrder(player: PlayerMatchState) {
+  const jersey = positionNumber(player.position);
+  return jersey > 0 ? jersey : 100 + player.squadNumber;
+}
+
 export function placeInSlots(players: PlayerMatchState[], slots: { x: number; y: number }[]) {
-  const onPitch = players.filter((player) => player.isOnPitch);
-  const keeper = onPitch.find((player) => playsInGoal(player.position));
-  const rest = onPitch
-    .filter((player) => player.playerId !== keeper?.playerId)
-    .sort((a, b) => a.squadNumber - b.squadNumber);
-  const ordered = keeper ? [keeper, ...rest] : rest;
+  const ordered = players
+    .filter((player) => player.isOnPitch)
+    .sort((a, b) => lineUpOrder(a) - lineUpOrder(b) || a.squadNumber - b.squadNumber);
   return ordered.slice(0, slots.length).flatMap((player, index) => {
     const slot = slots[index];
     return slot ? [{ player, x: slot.x, y: slot.y }] : [];
@@ -123,8 +101,8 @@ export function placeInSlots(players: PlayerMatchState[], slots: { x: number; y:
 export function nextCustomFormationName(formations: { name: string }[]) {
   const used = new Set(formations.map((formation) => formation.name.toLowerCase()));
   let count = 1;
-  while (used.has(`custom formation ${count}`)) count += 1;
-  return `Custom formation ${count}`;
+  while (used.has(`custom shape ${count}`)) count += 1;
+  return `Custom shape ${count}`;
 }
 
 export function isFormationName(value: string): value is FormationName {
@@ -181,7 +159,7 @@ export function FormationPitch({
         data-pitch="match"
         data-pitch-color={fieldColor}
         role="img"
-        aria-label={`${formation} formation`}
+        aria-label={`${formation} line-up`}
         data-formation={formation}
         data-placed={placed.length}
         onPointerMove={(event) => {
@@ -199,12 +177,23 @@ export function FormationPitch({
       >
         <g fill="none" stroke="#fff6f5" strokeWidth="0.6">
           <rect x="1" y="1" width="98" height="62" />
+          <rect x="1" y="1" width="7" height="62" fill="#fff6f5" fillOpacity="0.06" stroke="none" />
+          <rect x="92" y="1" width="7" height="62" fill="#fff6f5" fillOpacity="0.06" stroke="none" />
+          <line x1="8" y1="1" x2="8" y2="63" />
+          <line x1="92" y1="1" x2="92" y2="63" />
           <line x1="50" y1="1" x2="50" y2="63" />
-          <circle cx="50" cy="32" r="8" />
-          <rect x="1" y="16" width="14" height="32" />
-          <rect x="85" y="16" width="14" height="32" />
-          <rect x="1" y="24" width="5" height="16" />
-          <rect x="94" y="24" width="5" height="16" />
+          <line x1="26.5" y1="1" x2="26.5" y2="63" />
+          <line x1="73.5" y1="1" x2="73.5" y2="63" />
+          <g strokeDasharray="1.2 1" strokeOpacity="0.8">
+            <line x1="41.6" y1="1" x2="41.6" y2="63" />
+            <line x1="58.4" y1="1" x2="58.4" y2="63" />
+            <line x1="8" y1="5" x2="92" y2="5" />
+            <line x1="8" y1="59" x2="92" y2="59" />
+          </g>
+          <g strokeWidth="0.8">
+            <path d="M8 28 v8 M6.4 28 h1.6 M6.4 36 h1.6" />
+            <path d="M92 28 v8 M93.6 28 h-1.6 M93.6 36 h-1.6" />
+          </g>
         </g>
         {placed.map(({ player, x, y }) => (
           <g
@@ -222,7 +211,7 @@ export function FormationPitch({
               try {
                 event.currentTarget.setPointerCapture(event.pointerId);
               } catch {
-                /* the pitch still follows the pointer */
+                /* the field still follows the pointer */
               }
             }}
             onPointerMove={(event) => {
@@ -237,7 +226,7 @@ export function FormationPitch({
           >
             <circle r="4" fill="transparent" />
             <MannequinFigure
-              fill={playsInGoal(player.position) ? "#f59e0b" : DEFAULT_PLAYER_COLOR}
+              fill={DEFAULT_PLAYER_COLOR}
               ring="#ffffff"
               label={String(player.squadNumber)}
             />

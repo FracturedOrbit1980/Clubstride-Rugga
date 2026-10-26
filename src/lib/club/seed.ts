@@ -169,7 +169,7 @@ export function createSeed(): ClubData {
         mobile: "",
         correspondence: [],
         squadNumber: player.squadNumber,
-        position: "Central midfielder",
+        position: player.position,
         positions: [] as string[],
         teamId: SQUAD_TEAM_ID,
         homework: "",

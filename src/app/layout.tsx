@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     default: "Clubstride Rugga",
     template: `%s · Clubstride Rugga`,
   },
-  description: "Clubstride Rugga. Squads, drills, and pitch-side match tools for rugby.",
+  description: "Clubstride Rugga. Squads, drills, and field-side match tools for rugby.",
   applicationName: "Clubstride Rugga",
   manifest: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/manifest.webmanifest`,
   appleWebApp: {

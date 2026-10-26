@@ -144,7 +144,7 @@ export function DrillLibrary({
                 <p className="text-sm font-semibold text-slate-950">{momentLabel(selected.moment)} · {drillTypeLabel(selected.drillType)} · {selected.level}</p>
                 <p className="mt-1 text-sm font-medium text-slate-800">{playerCountLine(selected.players)}</p>
                 <p className="mt-1 text-sm font-medium text-slate-800">
-                  {selected.dimensions || "Pitch size not set"} · {selected.workRest || "Work and rest not set"} · {selected.licenseLevel} · {selected.ageBand}
+                  {selected.dimensions || "Field size not set"} · {selected.workRest || "Work and rest not set"} · {selected.licenseLevel} · {selected.ageBand}
                 </p>
                 <p className="mt-1 text-sm font-medium text-slate-800">{selected.equipment.length ? selected.equipment.join(", ") : "No equipment listed"}</p>
                 <p className="mt-2 text-sm font-semibold text-slate-950">{selected.pitchSetup}</p>

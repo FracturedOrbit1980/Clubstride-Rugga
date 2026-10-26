@@ -1,13 +1,13 @@
 # Clubstride Rugga
 
-Rugby club platform (Next.js App Router), copied from the Clubstride Football app. The inherited football product specification is in `PROMPT.md`; the rugby conversion has not been applied yet.
+Rugby club platform (Next.js App Router), adapted from the Clubstride Football app. The product specification in `PROMPT.md` is converted to rugby: numbered rugby positions, 15/12/10/7-a-side match shapes, rugby field markings, and a rugby drill library with SA Rugby licence levels.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000 and choose Developer, Club admin, Head coach, or Player. A developer sees every registered club and its balances; the other roles are scoped to the club that was open when they signed in. The official drill library is included. The imported players start on U12 Prem, and each one can be edited. Other age groups start empty. Club records are saved in this browser.
+Open http://localhost:3000 and choose Developer, Club admin, Head coach, or Player. A developer sees every registered club and its balances; the other roles are scoped to the club that was open when they signed in. The official rugby drill library is included. The imported players start on U12 Prem, and each one can be edited. Other age groups start empty. Club records are saved in this browser.
 
 The static build targets the `/Clubstride-Rugga/` base path. This repo has no GitHub remote or Pages site yet.
 

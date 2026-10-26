@@ -6,7 +6,7 @@ import { PlayerPhotoField, PlayerPortrait } from "@/components/club/player-photo
 import { PositionFields } from "@/components/club/position-fields";
 import { Button } from "@/components/ui/button";
 import { useCoachTeam } from "@/components/coach/team-picker";
-import { formatPosition, normalizePositions, type PositionChoice, type StandardPosition } from "@/lib/club/positions";
+import { ALL_ROUNDER, DEFAULT_POSITION, formatPosition, normalizePositions, type PositionChoice, type StandardPosition } from "@/lib/club/positions";
 import type { ClubPlayer } from "@/lib/club/seed";
 import { addDays, formatDay, mondayOf, sessionToday, weekDates } from "@/lib/club/week";
 import { useClubStore } from "@/stores/club-store";
@@ -27,7 +27,7 @@ export function RosterBoard() {
   const [notes, setNotes] = useState("");
   const [homework, setHomeworkText] = useState(selected?.homework ?? "");
   const [saved, setSaved] = useState("");
-  const initialPosition = normalizePositions(selected?.position ?? "Central midfielder", selected?.positions);
+  const initialPosition = normalizePositions(selected?.position ?? DEFAULT_POSITION, selected?.positions);
   const [editName, setEditName] = useState(selected?.name ?? "");
   const [editNumber, setEditNumber] = useState(selected?.squadNumber ?? 1);
   const [editRole, setEditRole] = useState<PositionChoice>(initialPosition.position);
@@ -44,7 +44,7 @@ export function RosterBoard() {
   const loadedId = useRef(selected?.id ?? "");
   if ((selected?.id ?? "") !== loadedId.current) {
     loadedId.current = selected?.id ?? "";
-    const nextPosition = normalizePositions(selected?.position ?? "Central midfielder", selected?.positions);
+    const nextPosition = normalizePositions(selected?.position ?? DEFAULT_POSITION, selected?.positions);
     setEditName(selected?.name ?? "");
     setEditNumber(selected?.squadNumber ?? 1);
     setEditRole(nextPosition.position);
@@ -59,7 +59,7 @@ export function RosterBoard() {
     const player = squad.find((item) => item.id === playerId);
     setSelectedId(playerId);
     setHomeworkText(player?.homework ?? "");
-    const nextPosition = normalizePositions(player?.position ?? "Central midfielder", player?.positions);
+    const nextPosition = normalizePositions(player?.position ?? DEFAULT_POSITION, player?.positions);
     setEditName(player?.name ?? "");
     setEditNumber(player?.squadNumber ?? 1);
     setEditRole(nextPosition.position);
@@ -218,13 +218,13 @@ export function RosterBoard() {
             roles={editRoles}
             onRole={(next) => {
               setEditRole(next);
-              if (next !== "All-rounder") setEditRoles([]);
+              if (next !== ALL_ROUNDER) setEditRoles([]);
             }}
             onToggle={(item) => setEditRoles((current) => (current.includes(item) ? current.filter((role) => role !== item) : [...current, item]))}
             field="edit-position"
           />
           <label className="block text-sm font-semibold text-slate-800">
-            Team and league
+            Team and competition
             <select
               value={selected.teamId}
               data-field="edit-team"
