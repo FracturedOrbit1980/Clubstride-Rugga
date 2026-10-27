@@ -1,0 +1,1 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,31281,t=>{"use strict";var e=t.i(43476),o=t.i(2656);t.s(["default",0,function({children:t}){return(0,e.jsx)(o.RoleGate,{allow:["PLAYER"],children:t})}])}]);
